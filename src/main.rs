@@ -1,5 +1,13 @@
-mod timer;
+extern crate ncurses;
+use ncurses::*;
+
+mod monster;
+mod sprite;
 
 fn main() {
-    println!("Hello, world!");
+    initscr();
+    printw("Hello, world!");
+    refresh();
+    getch();
+    endwin();
 }

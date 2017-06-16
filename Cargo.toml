@@ -4,3 +4,5 @@ version = "0.1.0"
 authors = ["Lynn <lynn@foldr.moe>"]
 
 [dependencies]
+ncurses = "5.85.0"
+

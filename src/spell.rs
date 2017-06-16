@@ -1,4 +1,4 @@
-struct Spell {
+pub struct Spell {
     name: &'static str,
     description: &'static str,
     bit: u8,
