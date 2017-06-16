@@ -1,0 +1,177 @@
+RAM: a roguelike about poking around in memory
+
+RAM MAP
+
+00 = Player appearance.
+     top 3 bits = color
+     bottom 5 bits is character, counting down from ascii '@'
+
+01-0F = Player name. Zero terminated
+
+10-12 = Monster 1 flags, pos, hp.
+13-15 = Monster 2 flags, pos, hp.
+16-18 = Monster 3 flags, pos, hp.
+19-1B = Monster 4 flags, pos, hp.
+1C-1E = Monster 5 flags, pos, hp.
+1F = Spell memory (8 bits)
+
+20-23 = identification
+24-27 = timers
+28-2F = inventory
+
+30 = door appearance
+31 = wall appearance
+32 = floor color
+33 = z delta       (signed)
+34 = timer delta   (signed)
+35 = damage offset (signed)
+36 = ?
+37 = ? (should mess things up very hard)
+
+38 = "text sync" (causes glitches when set high)
+
+39 = Player HP (capped by XL).
+
+3A = Player TP (capped by XL).
+
+3B = high nibble: XL 0-15
+     low nibble: Def 0-15
+
+3C = position (y + 19*x)
+
+3D = dlvl
+
+3E = metal (hi) acid (lo) res
+
+3F = fire (hi) elec (lo) res
+
+
+Player:
+* name char[15], appearance (3bit color 5bit char + '!')
+* HP 0-255 (0 = death)
+* SP 0-255
+* maxes decided by: XL 1-15 (0 = drained to death)
+& Def 0-15
+* Dlvl 1-255 (dungon goes scarily deep!! but Amulet on D20)
+  (0 = corrupted world: flip 50 random bits then tele to random dlvl)
+  (this should lead to certainish death?)
+* identification: 4 bytes (= 32 bits, but not all used)
+* timers: 4 bytes
+  (poison, haste, charge, protect)
+* spell memory: 1 byte (= 8 spells)
+* aptitudes: 2 bytes (= 4bit signed for each element)
+* inventory: 8 items
+
+* text sync: 1 byte (causes text glitches!)
+
+Elements are: METAL, ACID, FIRE, ELEC.
+
+* Position: 0-255
+Boards are 19x13. Positions are x+19*y. This means 247-255 are ununsed -- if
+the player ends up here she zips through to 0 but one bit is flipped each tile.
+
+Monsters:
+Room in memory for 5 monsters: flags, pos, hp. Top 4 bits of flags are monster
+type (16 species). Then charged (dam*2), vulnerable (def=0), venomous (poisons)
+and corrupted (dam*2 and fucks bits up). Charged and corrupted stack.
+
+melee is 2dXL.
+
+Items:
+00 = nothing
+01 = crowbar:  XLd(3 + metal) melee
+02 = volcanic shard:  XLd(5 + fire) melee
+03 = taser:  XLd(6 + elec) stun melee
+04 = jelly gun:  XLd(3 + acid) ranged
+05-07 = fruits
+(restore 50% of missing hp, full hp, full sp)
+08-0F = pills
+(4 timers, ID, XL-2, XL+2)
+10 = thick sweater (3 def, +2 fire -2 elec)
+11 = ballistic vest (5 def, +2 metal -2 acid)
+12 = dragon scale mail (7 def, +2 acid -2 fire)
+13 = titanium necklace (+3 metal -1 others)
+14 = rusty necklace (+3 acid etc)
+15 = crimson necklace (+3 fire)
+16 = glowing necklace (+3 elec)
+17 = unholy necklace (-3 all)
+18 = wand of death (ranged single-use instakill)
+19 = manual: learn new spell
+1A = guidebook: learn better spell
+1B = corruptor: flip 10 random bits in memory.
+1C = A-device (set target's lower 4bits)
+1D = B-device (copy byte into accumulator)
+1E = palantir (see everything)
+1F = golden pendant
+
+Dungeon levels:
+Blah I guess I can draw 256 small vaults! Generate monsters, items, and
+switches (address bits 0-5?)
+
+Spells:
+0 zero
+1 increment
+2 set rightmost zero bit
+3 copy next
+4 add 0x9D
+5 reverse
+6 choose lower byte
+7 choose upper byte
+
+Monsters:
+00 = no monster
+01 = 
+
+Kestrel
+* token slow weak monster
+
+Skeleton
+* bland warrior
+
+Troll
+* troll (regen melee)
+
+Android
+* metal melee monster
+
+Jelly
+* slime spit monster
+
+Salamander
+* fire poison monster
+
+Tiny UFO
+* paralyzing elec monster
+
+Minotaur
+* OOD wall slam thing
+
+Glitch
+* bit corruptor
+
+Witch
+* convoker
+
+Ghost
+* scary XL drainer (run)
+
+Soldier
+* "smart" ranged AI things (sil)
+
+Attractor
+* magnet monsters? nethacky sirens attracting iron objects
+
+Turret
+* turret (can't move, but large range damage in an area -- disable it)
+
+Elf
+* ally?
+
+Golden dragon
+* golden dragon (melee instakill, invincible, guards pendant)
+
+======================================================
+
+* temperature/light "constants"
+
+* glowfruit!!!!!
