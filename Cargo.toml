@@ -1,0 +1,6 @@
+[package]
+name = "hexs-cellar"
+version = "0.1.0"
+authors = ["Lynn <lynn@foldr.moe>"]
+
+[dependencies]
