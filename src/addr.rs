@@ -1,7 +1,7 @@
 // In Hex's Cellar, the player's spells manipulate an u8[40] of bytes that
 // affect the world around her. This enum gives a "RAM map" for that array.
 
-enum Addr {
+pub enum Addr {
     // Color (3 bits = 8 bright colors) and character (5 bits, offset added to '!')
     PlayerAppearance = 0x00,
 
@@ -20,14 +20,8 @@ enum Addr {
     // A 32-bit bitmask (there are thirty-two items).
     Identification = 0x20,
 
-    // Begins a u8[4]: one byte for each timer.
+    // Begins a u8[4]: one byte for each timer (poison, haste, charge, protect).
     Timers = 0x24,
-
-    // Here are their individual addresses, anyway:
-    PoisonTimer = 0x24,
-    HasteTimer = 0x25,
-    ChargeTimer = 0x26,
-    ProtectTimer = 0x27,
 
     // Begins a u8[8].
     Inventory = 0x28,
