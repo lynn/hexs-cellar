@@ -5,10 +5,14 @@ use ncurses::*;
 
 mod addr;
 mod board;
+mod byte;
 mod item;
 mod monster;
+mod player;
+mod point;
 mod spell;
 mod sprite;
+mod tile;
 mod timer;
 
 fn main() {

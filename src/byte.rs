@@ -5,14 +5,14 @@ pub enum BitNumber {
 
 pub fn mask(bit: BitNumber) -> u8 {
     match bit {
-        Bit0 => 0b00000001,
-        Bit1 => 0b00000010,
-        Bit2 => 0b00000100,
-        Bit3 => 0b00001000,
-        Bit4 => 0b00010000,
-        Bit5 => 0b00100000,
-        Bit6 => 0b01000000,
-        Bit7 => 0b10000000,
+        BitNumber::Bit0 => 0b00000001,
+        BitNumber::Bit1 => 0b00000010,
+        BitNumber::Bit2 => 0b00000100,
+        BitNumber::Bit3 => 0b00001000,
+        BitNumber::Bit4 => 0b00010000,
+        BitNumber::Bit5 => 0b00100000,
+        BitNumber::Bit6 => 0b01000000,
+        BitNumber::Bit7 => 0b10000000,
     }
 }
 

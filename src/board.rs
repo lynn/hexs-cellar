@@ -1,26 +1,10 @@
 use std::collections::{HashMap, HashSet};
 use item::{Item};
-use byte::{BitNumber};
+use point::{Point};
+use tile::{Tile};
 
 pub const WIDTH: usize = 19;
 pub const HEIGHT: usize = 13;
-
-#[derive(Copy, Clone)]
-pub struct Point {
-    x: i32,
-    y: i32,
-}
-
-#[derive(Copy, Clone)]
-pub enum Tile {
-    Floor,
-    Wall,
-    Door,
-    Doorway,
-    StairsUp,
-    StairsDown,
-    Switch(BitNumber),
-}
 
 // A dungeon level. The terminology is from ZZT...
 pub struct Board {

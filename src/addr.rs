@@ -33,7 +33,7 @@ pub enum Addr {
     FloorColor = 0x32,
 
     // u8 to add/subtract from depth when stairs are used; normally 1.
-    StaircaseDelta = 0x33,
+    StairsDelta = 0x33,
 
     // u8 to add to timers each turn if non-zero; normally 0xff.
     TimerDelta = 0x34,
