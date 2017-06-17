@@ -5,4 +5,4 @@ authors = ["Lynn <lynn@foldr.moe>"]
 
 [dependencies]
 ncurses = "5.85.0"
-
+rand = "0.3.15"

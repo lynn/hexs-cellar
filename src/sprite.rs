@@ -6,6 +6,7 @@ pub enum Color {
     Pink, Yellow, White,
 }
 
+#[derive(Copy, Clone)]
 pub struct Sprite {
     pub character: char,
     pub color: &'static [Color],

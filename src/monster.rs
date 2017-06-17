@@ -22,108 +22,27 @@ pub enum Kind {
 }
 
 pub struct Info {
-    appearance: Sprite,
     name: &'static str,
+    sprite: Sprite,
     habitat: (u8, u8),
     max_hp: u8,
 }
 
 pub const INFOS: [Info; 16] = [
-    Info {
-        appearance: Sprite {character: 'K', color: &[White]},
-        name: "kestrel",
-        habitat: (1, 4),
-        max_hp: 6,
-    },
-    Info {
-        appearance: Sprite {character: 'Z', color: &[Gray]},
-        name: "skeleton",
-        habitat: (1, 5),
-        max_hp: 8,
-    },
-    Info {
-        appearance: Sprite {character: 'T', color: &[Brown]},
-        name: "troll",
-        habitat: (2, 6),
-        max_hp: 20,
-    },
-    Info {
-        appearance: Sprite {character: 'A', color: &[Teal]},
-        name: "android",
-        habitat: (3, 7),
-        max_hp: 15,
-    },
-    Info {
-        appearance: Sprite {character: 'J', color: &[Lime]},
-        name: "jelly",
-        habitat: (4, 8),
-        max_hp: 13,
-    },
-    Info {
-        appearance: Sprite {character: 'S', color: &[Red]},
-        name: "salamander",
-        habitat: (5, 9),
-        max_hp: 18,
-    },
-    Info {
-        appearance: Sprite {character: 'U', color: &[Aqua]},
-        name: "tiny UFO",
-        habitat: (6, 10),
-        max_hp: 16,
-    },
-    Info {
-        appearance: Sprite {character: 'M', color: &[Maroon]},
-        name: "minotaur",
-        habitat: (8, 15),
-        max_hp: 40,
-    },
-    Info {
-        appearance: Sprite {character: 'B', color: &[Pink]},
-        name: "glitch",
-        habitat: (0, 0),
-        max_hp: 15,
-    },
-    Info {
-        appearance: Sprite {character: 'W', color: &[Purple]},
-        name: "witch",
-        habitat: (11, 16),
-        max_hp: 24,
-    },
-    Info {
-        appearance: Sprite {character: 'G', color: &[Dark]},
-        name: "ghost",
-        habitat: (13, 19),
-        max_hp: 35,
-    },
-    Info {
-        appearance: Sprite {character: '@', color: &[Blue]},
-        name: "soldier",
-        habitat: (14, 20),
-        max_hp: 45,
-    },
-    Info {
-        appearance: Sprite {character: '8', color: &[Teal]},
-        name: "attractor",
-        habitat: (15, 20),
-        max_hp: 50,
-    },
-    Info {
-        appearance: Sprite {character: '9', color: &[Dark]},
-        name: "turret",
-        habitat: (15, 20),
-        max_hp: 60,
-    },
-    Info {
-        appearance: Sprite {character: 'E', color: &[Lime]},
-        name: "elf",
-        habitat: (1, 0), // don't generate
-        max_hp: 40,
-    },
-    Info {
-        appearance: Sprite {character: 'D', color: &[Yellow]},
-        name: "golden dragon",
-        habitat: (20, 255),
-        max_hp: 200,
-    },
-
+    Info {name: "kestrel",       sprite: Sprite {character: 'K', color: &[White]},  habitat: ( 1,   4), max_hp: 6},
+    Info {name: "skeleton",      sprite: Sprite {character: 'Z', color: &[Gray]},   habitat: ( 1,   5), max_hp: 8},
+    Info {name: "troll",         sprite: Sprite {character: 'T', color: &[Brown]},  habitat: ( 2,   6), max_hp: 20},
+    Info {name: "android",       sprite: Sprite {character: 'A', color: &[Teal]},   habitat: ( 3,   7), max_hp: 15},
+    Info {name: "jelly",         sprite: Sprite {character: 'J', color: &[Lime]},   habitat: ( 4,   8), max_hp: 13},
+    Info {name: "salamander",    sprite: Sprite {character: 'S', color: &[Red]},    habitat: ( 5,   9), max_hp: 18},
+    Info {name: "tiny UFO",      sprite: Sprite {character: 'U', color: &[Aqua]},   habitat: ( 6,  10), max_hp: 16},
+    Info {name: "minotaur",      sprite: Sprite {character: 'M', color: &[Maroon]}, habitat: ( 8,  15), max_hp: 40},
+    Info {name: "glitch",        sprite: Sprite {character: 'B', color: &[Pink]},   habitat: ( 0,   0), max_hp: 15},
+    Info {name: "witch",         sprite: Sprite {character: 'W', color: &[Purple]}, habitat: (11,  16), max_hp: 24},
+    Info {name: "ghost",         sprite: Sprite {character: 'G', color: &[Dark]},   habitat: (13,  19), max_hp: 35},
+    Info {name: "soldier",       sprite: Sprite {character: '@', color: &[Blue]},   habitat: (14,  20), max_hp: 45},
+    Info {name: "attractor",     sprite: Sprite {character: '8', color: &[Teal]},   habitat: (15,  20), max_hp: 50},
+    Info {name: "turret",        sprite: Sprite {character: '9', color: &[Dark]},   habitat: (15,  20), max_hp: 60},
+    Info {name: "elf",           sprite: Sprite {character: 'E', color: &[Lime]},   habitat: ( 1,   0), max_hp: 40},
+    Info {name: "golden dragon", sprite: Sprite {character: 'D', color: &[Yellow]}, habitat: (20, 255), max_hp: 200},
 ];

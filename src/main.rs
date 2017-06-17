@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 extern crate ncurses;
+extern crate rand;
 use ncurses::*;
 
 mod addr;
