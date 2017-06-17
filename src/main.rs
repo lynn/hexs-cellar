@@ -35,6 +35,9 @@ fn main() {
             if let Some(s) = e.downcast_ref::<&'static str>() {
                 writeln!(std::io::stderr(), "{}", s).unwrap();
             }
+            if let Some(s) = e.downcast_ref::<std::io::Error>() {
+                writeln!(std::io::stderr(), "{}", s).unwrap();
+            }
             1
         }
     });
