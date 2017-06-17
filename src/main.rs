@@ -7,6 +7,7 @@ use std::io::Write;
 mod addr;
 mod byte;
 mod dungeon;
+mod grid;
 mod item;
 mod monster;
 mod player;
@@ -18,6 +19,14 @@ mod timer;
 mod util;
 
 fn main() {
+    match dungeon::read_maps() {
+        Ok(_) => {}
+        Err(e) => {
+            writeln!(std::io::stderr(), "{}", e).unwrap();
+            std::process::exit(1)
+        }
+    }
+
     initscr();
     raw();
     noecho();
