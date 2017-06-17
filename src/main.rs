@@ -4,8 +4,8 @@ extern crate rand;
 use ncurses::*;
 
 mod addr;
-mod board;
 mod byte;
+mod dungeon;
 mod item;
 mod monster;
 mod player;

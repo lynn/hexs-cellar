@@ -1,7 +1,6 @@
 use rand;
 use rand::Rng;
-use sprite::{Sprite};
-use sprite::Color::*;
+use sprite::*;
 
 #[derive(Copy, Clone)]
 pub enum Appearance {
@@ -61,38 +60,38 @@ const DEVICE_CHAR: char = '&';
 const ARTIFACT_CHAR: char = '$';
 
 const APPEARANCE_INFOS: [AppearanceInfo; 32] = [
-    AppearanceInfo {name: "(no item)",         sprite: Sprite {character: '?',           color: &[Red]}},
-    AppearanceInfo {name: "crowbar",           sprite: Sprite {character: WEAPON_CHAR,   color: &[Teal]}},
-    AppearanceInfo {name: "volcanic shard",    sprite: Sprite {character: WEAPON_CHAR,   color: &[Maroon]}},
-    AppearanceInfo {name: "taser",             sprite: Sprite {character: WEAPON_CHAR,   color: &[Aqua]}},
-    AppearanceInfo {name: "jelly gun",         sprite: Sprite {character: WEAPON_CHAR,   color: &[Lime]}},
-    AppearanceInfo {name: "lumimelon",         sprite: Sprite {character: FOOD_CHAR,     color: &[Lime]}},
-    AppearanceInfo {name: "glowfruit",         sprite: Sprite {character: FOOD_CHAR,     color: &[Pink]}},
-    AppearanceInfo {name: "shineapple",        sprite: Sprite {character: FOOD_CHAR,     color: &[Yellow]}},
-    AppearanceInfo {name: "round pill",        sprite: Sprite {character: PILL_CHAR,     color: &[White]}},
-    AppearanceInfo {name: "tiny pill",         sprite: Sprite {character: PILL_CHAR,     color: &[White]}},
-    AppearanceInfo {name: "diamond pill",      sprite: Sprite {character: PILL_CHAR,     color: &[White]}},
-    AppearanceInfo {name: "oblong pill",       sprite: Sprite {character: PILL_CHAR,     color: &[White]}},
-    AppearanceInfo {name: "soft pill",         sprite: Sprite {character: PILL_CHAR,     color: &[White]}},
-    AppearanceInfo {name: "hexagonal pill",    sprite: Sprite {character: PILL_CHAR,     color: &[White]}},
-    AppearanceInfo {name: "wide pill",         sprite: Sprite {character: PILL_CHAR,     color: &[White]}},
-    AppearanceInfo {name: "translucent pill",  sprite: Sprite {character: PILL_CHAR,     color: &[White]}},
-    AppearanceInfo {name: "thick sweater",     sprite: Sprite {character: ARMOR_CHAR,    color: &[Purple]}},
-    AppearanceInfo {name: "ballistic vest",    sprite: Sprite {character: ARMOR_CHAR,    color: &[Teal]}},
-    AppearanceInfo {name: "dragon scale mail", sprite: Sprite {character: ARMOR_CHAR,    color: &[Green]}},
-    AppearanceInfo {name: "titanium necklace", sprite: Sprite {character: NECKLACE_CHAR, color: &[Gray]}},
-    AppearanceInfo {name: "rusty necklace",    sprite: Sprite {character: NECKLACE_CHAR, color: &[Brown]}},
-    AppearanceInfo {name: "crimson necklace",  sprite: Sprite {character: NECKLACE_CHAR, color: &[Maroon]}},
-    AppearanceInfo {name: "glowing necklace",  sprite: Sprite {character: NECKLACE_CHAR, color: &[Yellow]}},
-    AppearanceInfo {name: "unholy necklace",   sprite: Sprite {character: NECKLACE_CHAR, color: &[Dark]}},
-    AppearanceInfo {name: "wand",              sprite: Sprite {character: DEVICE_CHAR,   color: &[Navy]}},
-    AppearanceInfo {name: "manual",            sprite: Sprite {character: DEVICE_CHAR,   color: &[Teal]}},
-    AppearanceInfo {name: "guidebook",         sprite: Sprite {character: DEVICE_CHAR,   color: &[Teal]}},
-    AppearanceInfo {name: "red device",        sprite: Sprite {character: DEVICE_CHAR,   color: &[Red]}},
-    AppearanceInfo {name: "yellow device",     sprite: Sprite {character: DEVICE_CHAR,   color: &[Yellow]}},
-    AppearanceInfo {name: "blue device",       sprite: Sprite {character: DEVICE_CHAR,   color: &[Blue]}},
-    AppearanceInfo {name: "palantir",          sprite: Sprite {character: ARTIFACT_CHAR, color: &[Blue, Navy, Aqua, Teal]}},
-    AppearanceInfo {name: "golden pendant",    sprite: Sprite {character: ARTIFACT_CHAR, color: &[Red, Yellow, Brown, White]}},
+    AppearanceInfo {name: "(no item)",         sprite: Sprite {character: '?',           color: GLITCH}},
+    AppearanceInfo {name: "crowbar",           sprite: Sprite {character: WEAPON_CHAR,   color: TEAL}},
+    AppearanceInfo {name: "volcanic shard",    sprite: Sprite {character: WEAPON_CHAR,   color: MAROON}},
+    AppearanceInfo {name: "taser",             sprite: Sprite {character: WEAPON_CHAR,   color: AQUA}},
+    AppearanceInfo {name: "jelly gun",         sprite: Sprite {character: WEAPON_CHAR,   color: LIME}},
+    AppearanceInfo {name: "lumimelon",         sprite: Sprite {character: FOOD_CHAR,     color: LIME}},
+    AppearanceInfo {name: "glowfruit",         sprite: Sprite {character: FOOD_CHAR,     color: PINK}},
+    AppearanceInfo {name: "shineapple",        sprite: Sprite {character: FOOD_CHAR,     color: YELLOW}},
+    AppearanceInfo {name: "round pill",        sprite: Sprite {character: PILL_CHAR,     color: WHITE}},
+    AppearanceInfo {name: "tiny pill",         sprite: Sprite {character: PILL_CHAR,     color: WHITE}},
+    AppearanceInfo {name: "diamond pill",      sprite: Sprite {character: PILL_CHAR,     color: WHITE}},
+    AppearanceInfo {name: "oblong pill",       sprite: Sprite {character: PILL_CHAR,     color: WHITE}},
+    AppearanceInfo {name: "soft pill",         sprite: Sprite {character: PILL_CHAR,     color: WHITE}},
+    AppearanceInfo {name: "hexagonal pill",    sprite: Sprite {character: PILL_CHAR,     color: WHITE}},
+    AppearanceInfo {name: "wide pill",         sprite: Sprite {character: PILL_CHAR,     color: WHITE}},
+    AppearanceInfo {name: "translucent pill",  sprite: Sprite {character: PILL_CHAR,     color: WHITE}},
+    AppearanceInfo {name: "thick sweater",     sprite: Sprite {character: ARMOR_CHAR,    color: PURPLE}},
+    AppearanceInfo {name: "ballistic vest",    sprite: Sprite {character: ARMOR_CHAR,    color: TEAL}},
+    AppearanceInfo {name: "dragon scale mail", sprite: Sprite {character: ARMOR_CHAR,    color: GREEN}},
+    AppearanceInfo {name: "titanium necklace", sprite: Sprite {character: NECKLACE_CHAR, color: GRAY}},
+    AppearanceInfo {name: "rusty necklace",    sprite: Sprite {character: NECKLACE_CHAR, color: BROWN}},
+    AppearanceInfo {name: "crimson necklace",  sprite: Sprite {character: NECKLACE_CHAR, color: MAROON}},
+    AppearanceInfo {name: "glowing necklace",  sprite: Sprite {character: NECKLACE_CHAR, color: YELLOW}},
+    AppearanceInfo {name: "unholy necklace",   sprite: Sprite {character: NECKLACE_CHAR, color: DARK}},
+    AppearanceInfo {name: "wand",              sprite: Sprite {character: DEVICE_CHAR,   color: NAVY}},
+    AppearanceInfo {name: "manual",            sprite: Sprite {character: DEVICE_CHAR,   color: TEAL}},
+    AppearanceInfo {name: "guidebook",         sprite: Sprite {character: DEVICE_CHAR,   color: TEAL}},
+    AppearanceInfo {name: "red device",        sprite: Sprite {character: DEVICE_CHAR,   color: RED}},
+    AppearanceInfo {name: "yellow device",     sprite: Sprite {character: DEVICE_CHAR,   color: YELLOW}},
+    AppearanceInfo {name: "blue device",       sprite: Sprite {character: DEVICE_CHAR,   color: BLUE}},
+    AppearanceInfo {name: "palantir",          sprite: Sprite {character: ARTIFACT_CHAR, color: SAPPHIRE}},
+    AppearanceInfo {name: "golden pendant",    sprite: Sprite {character: ARTIFACT_CHAR, color: GOLD}},
 ];
 
 impl Appearance {
