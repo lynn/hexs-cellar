@@ -1,5 +1,6 @@
 use std::collections::{HashMap, HashSet};
 use item::{Item};
+use byte::{BitNumber};
 
 pub const WIDTH: usize = 19;
 pub const HEIGHT: usize = 13;
@@ -18,7 +19,7 @@ pub enum Tile {
     Doorway,
     StairsUp,
     StairsDown,
-    Switch(u8),
+    Switch(BitNumber),
 }
 
 // A dungeon level. The terminology is from ZZT...
@@ -28,3 +29,5 @@ pub struct Board {
     items: HashMap<Point, Item>,
     visible: HashSet<Point>,
 }
+
+pub type Dungeon = [Board; 256];
