@@ -1,6 +1,7 @@
 // In Hex's Cellar, the player's spells manipulate an u8[40] of bytes that
 // affect the world around her. This enum gives a "RAM map" for that array.
 
+#[derive(Copy, Clone)]
 pub enum Addr {
     // Color (3 bits = 8 bright colors) and character (5 bits, offset added to '!')
     PlayerAppearance = 0x00,

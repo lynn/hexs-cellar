@@ -1,3 +1,4 @@
+#[derive(Copy, Clone)]
 pub enum Timer {
     Poison = 0x00,
     Haste = 0x01,
