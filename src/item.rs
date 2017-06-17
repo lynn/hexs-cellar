@@ -34,7 +34,7 @@ pub enum Appearance {
     GoldenPendant = 0x1f,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Eq, PartialEq)]
 pub enum Kind {
     Crowbar,
     VolcanicShard,
@@ -90,5 +90,17 @@ impl Item {
             equipped: byte & 0b010 > 0,
             cursed: byte & 0b001 > 0,
         })
+    }
+
+    pub fn to_byte(&self, appearance_map: &AppearanceMap) -> u8 {
+        for n in 0..19 {
+            if appearance_map[n] == Some(self.kind) {
+                return (n << 3) as u8
+                    + (if self.enchanted {0b100} else {0})
+                    + (if self.equipped {0b010} else {0})
+                    + (if self.cursed {0b001} else {0});
+            }
+        }
+        panic!("Invalid AppearanceMap!");
     }
 }
