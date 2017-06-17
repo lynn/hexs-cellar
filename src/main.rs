@@ -14,6 +14,7 @@ mod spell;
 mod sprite;
 mod tile;
 mod timer;
+mod util;
 
 fn main() {
     initscr();
