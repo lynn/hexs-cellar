@@ -6,6 +6,7 @@ use std::io::BufReader;
 use std::io::prelude::*;
 use std::result::Result;
 use std::convert::From;
+use std::ascii::AsciiExt;
 use rand;
 use rand::Rng;
 use grid::Grid;
@@ -124,8 +125,8 @@ fn build_map(whichmap: usize, scheme: &Grid<u8>) -> Result<Grid<Tile>, MapError>
     }
 
     // a HashMap to keep track of which tile (floor or wall) to use for
-    // each letter A-Z in the map scheme
-    let mut tilechoices: HashMap<u8, Tile> = HashMap::new();
+    // each letter A-Z in the map scheme (and the inverse for a-z)
+    let mut tilechoices: HashMap<u8, bool> = HashMap::new();
 
     let mut staircount = 0;
 
@@ -145,14 +146,19 @@ fn build_map(whichmap: usize, scheme: &Grid<u8>) -> Result<Grid<Tile>, MapError>
                 staircount += 1;
                 tile
             }
-            b'A' ... b'Z' =>
-                *tilechoices.entry(srctile).or_insert_with(||
-                    if rand::thread_rng().gen() {
-                        Tile::Wall
-                    } else {
-                        Tile::Floor
-                    }
-                ),
+            b'A' ... b'Z' | b'a' ... b'z' => {
+                let normalized = srctile.to_ascii_uppercase();
+                let selection = *tilechoices.entry(normalized).or_insert_with(||
+                    rand::thread_rng().gen() );
+                // flip selection for lowercase letters
+                // TODO: use srctile.is_ascii_uppercase()
+                // once ascii_ctype is stable
+                if selection == (srctile == normalized) {
+                    Tile::Wall
+                } else {
+                    Tile::Floor
+                }
+            }
             _ => return Err(MapError::TileError(whichmap, srctile))
         })
     }
