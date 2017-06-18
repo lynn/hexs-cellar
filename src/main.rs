@@ -19,7 +19,7 @@ mod timer;
 mod util;
 
 fn main() {
-    match dungeon::read_maps() {
+    match dungeon::build() {
         Ok(_) => {}
         Err(e) => {
             writeln!(std::io::stderr(), "{}", e).unwrap();

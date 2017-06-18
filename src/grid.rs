@@ -4,6 +4,7 @@ use point::Point;
 pub const WIDTH: usize = 19;
 pub const HEIGHT: usize = 13;
 
+#[derive(Clone)]
 pub struct Grid<T> {
     pub grid: Vec<T>, // In row order.
 }
