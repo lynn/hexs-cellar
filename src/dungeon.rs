@@ -100,9 +100,9 @@ fn read_maps() -> Result<Vec<Grid<u8>>, MapError> {
 
 fn read_map(linecount: &mut usize, lines: Lines) -> Result<Grid<u8>, MapError> {
     let mut grid = Grid::empty();
-    for _ in 0..13 {
+    for _ in 0..grid::HEIGHT {
         match lines.next() {
-            Some(Ok(ref row)) if row.len() == 19 =>
+            Some(Ok(ref row)) if row.len() == grid::WIDTH =>
                 grid.grid.extend(row.bytes()),
             Some(Err(e)) => return Err(MapError::IoError(e)),
             _ => return Err(MapError::ShapeError(*linecount))
