@@ -1,8 +1,9 @@
 #![allow(dead_code)]
-extern crate ncurses;
 extern crate rand;
-use ncurses::*;
+extern crate rustty;
+use rustty::{Terminal, Cell, Attr, Color};
 use std::io::Write;
+use std::time::Duration;
 
 mod addr;
 mod byte;
@@ -20,23 +21,22 @@ mod util;
 mod view;
 
 fn main() {
+    let mut terminal = Terminal::new().unwrap();
+
     let dungeon = dungeon::build().unwrap_or_else(|e| {
         writeln!(std::io::stderr(), "{}", e).unwrap();
         std::process::exit(1)
     });
+    // let result = std::panic::catch_unwind(|| {
+        // view::draw_level(&dungeon[0]);
+        terminal.clear_with_cell(
+            Cell::new('@', Color::Magenta, Color::Default, Attr::Bold)
+        ).unwrap();
+        terminal.swap_buffers().unwrap();
+        terminal.get_event(Duration::from_secs(99999)).unwrap();
+    // });
 
-    initscr();
-    raw();
-    noecho();
-    curs_set(CURSOR_VISIBILITY::CURSOR_INVISIBLE);
-    let result = std::panic::catch_unwind(|| {
-        view::draw_level(&dungeon[0]);
-        refresh();
-        getch();
-    });
-    endwin();
-
-    std::process::exit(match result {
+    /* std::process::exit(match result {
         Ok(_) => 0,
         Err(e) => {
             if let Some(s) = e.downcast_ref::<&'static str>() {
@@ -47,5 +47,5 @@ fn main() {
             }
             1
         }
-    });
+    }); */
 }

@@ -1,8 +1,8 @@
-use ncurses::*;
 use grid;
 use grid::Grid;
 use tile::Tile;
 
+/*
 pub fn draw_level(map: &Grid<Tile>) {
     for col in 0..grid::HEIGHT {
         mv(col as i32, 0);
@@ -11,3 +11,4 @@ pub fn draw_level(map: &Grid<Tile>) {
         }
     }
 }
+*/
