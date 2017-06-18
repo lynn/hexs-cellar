@@ -5,13 +5,13 @@ pub const WIDTH: usize = 19;
 pub const HEIGHT: usize = 13;
 
 pub struct Grid<T> {
-    grid: [T; WIDTH * HEIGHT], // In row order.
+    pub grid: Vec<T>, // In row order.
 }
 
-impl<T: Copy> Grid<T> {
-    pub fn filled(x: T) -> Grid<T> {
+impl<T> Grid<T> {
+    pub fn empty() -> Grid<T> {
         Grid {
-            grid: [x; WIDTH * HEIGHT]
+            grid: Vec::with_capacity(WIDTH * HEIGHT)
         }
     }
 }

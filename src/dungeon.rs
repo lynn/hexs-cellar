@@ -66,18 +66,16 @@ pub fn read_maps() -> Result<Vec<Grid<u8>>, MapError> {
     }
 }
 
-fn read_map(pos: &mut usize, lines: Lines) -> Result<Grid<u8>, MapError> {
-    let mut grid = Grid::filled(0);
-    for row in 0..13 {
+fn read_map(linecount: &mut usize, lines: Lines) -> Result<Grid<u8>, MapError> {
+    let mut grid = Grid::empty();
+    for _ in 0..13 {
         match lines.next() {
-            Some(Ok(ref line)) if line.len() == 19 =>
-                for (col, tile) in line.bytes().enumerate() {
-                    grid[(col, row)] = tile
-                },
+            Some(Ok(ref row)) if row.len() == 19 =>
+                grid.grid.extend(row.bytes()),
             Some(Err(e)) => return Err(MapError::IoError(e)),
-            _ => return Err(MapError::ShapeError(*pos))
+            _ => return Err(MapError::ShapeError(*linecount))
         }
-        *pos = *pos + 1
+        *linecount = *linecount + 1
     }
     Ok(grid)
 }
