@@ -9,6 +9,7 @@ use std::convert::From;
 use std::ascii::AsciiExt;
 use rand;
 use rand::Rng;
+use grid;
 use grid::Grid;
 use item::{Item};
 use point::{Point};
@@ -69,7 +70,9 @@ pub fn build() -> Result<Vec<Grid<Tile>>, MapError> {
 
     let mut maps: Vec<Grid<Tile>> = Vec::with_capacity(255);
     for (whichmap, scheme) in schemes.iter().enumerate() {
-        maps.push(build_map(whichmap, scheme)?)
+        let mut map = build_map(whichmap, scheme)?;
+        flip_randomly(&mut map);
+        maps.push(map)
     }
 
     rand::thread_rng().shuffle(&mut maps[..]);
@@ -164,4 +167,17 @@ fn build_map(whichmap: usize, scheme: &Grid<u8>) -> Result<Grid<Tile>, MapError>
     }
 
     Ok(map)
+}
+
+fn flip_randomly<T>(map: &mut Grid<T>) {
+    if rand::thread_rng().gen() {
+        // flip horizontally
+        for row in map.grid.chunks_mut(grid::WIDTH) {
+            row.reverse()
+        }
+    }
+    if rand::thread_rng().gen() {
+        // flip both horizontally and vertically
+        map.grid.reverse()
+    }
 }
