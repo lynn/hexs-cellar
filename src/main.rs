@@ -17,22 +17,20 @@ mod sprite;
 mod tile;
 mod timer;
 mod util;
+mod view;
 
 fn main() {
-    match dungeon::build() {
-        Ok(_) => {}
-        Err(e) => {
-            writeln!(std::io::stderr(), "{}", e).unwrap();
-            std::process::exit(1)
-        }
-    }
+    let dungeon = dungeon::build().unwrap_or_else(|e| {
+        writeln!(std::io::stderr(), "{}", e).unwrap();
+        std::process::exit(1)
+    });
 
     initscr();
     raw();
     noecho();
     curs_set(CURSOR_VISIBILITY::CURSOR_INVISIBLE);
     let result = std::panic::catch_unwind(|| {
-        printw("Hello, world!");
+        view::draw_level(&dungeon[0]);
         refresh();
         getch();
     });
