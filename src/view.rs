@@ -36,7 +36,7 @@ pub fn draw_level(term: &mut Terminal, level: &Level, player: &Player) {
         let sprite = if position == player.position {
             Sprite::of_byte(player.appearance_byte)
         } else {
-            level.tiles[position].sprite()
+            level.tiles[position].sprite(player)
         };
 
         let Point(row, col) = position;
