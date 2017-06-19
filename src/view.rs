@@ -6,6 +6,7 @@ use sprite;
 use sprite::Sprite;
 use geometry::*;
 use dungeon::Level;
+use player::Player;
 
 
 fn cell(sprite: Sprite) -> Cell {
@@ -30,9 +31,15 @@ fn cell(sprite: Sprite) -> Cell {
     Cell::new(sprite.character, color, rustty::Color::Default, attr)
 }
 
-pub fn draw_level(term: &mut Terminal, level: &Level) {
-    for point in grid::RECTANGLE {
-        let Point(row, col) = point;
-        term[(row as usize, col as usize)] = cell(level.tiles[point].sprite());
+pub fn draw_level(term: &mut Terminal, level: &Level, player: &Player) {
+    for position in grid::RECTANGLE {
+        let sprite = if position == player.position {
+            Sprite::of_byte(player.appearance_byte)
+        } else {
+            level.tiles[position].sprite()
+        };
+
+        let Point(row, col) = position;
+        term[(row as usize, col as usize)] = cell(sprite)
     }
 }

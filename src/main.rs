@@ -28,7 +28,9 @@ fn main() {
         std::process::exit(1)
     });
 
-    view::draw_level(&mut terminal, &dungeon[0]);
+    let player = player::Player::new(&dungeon);
+
+    view::draw_level(&mut terminal, &dungeon[0], &player);
     terminal.swap_buffers().unwrap();
     terminal.get_event(Duration::from_secs(99999)).unwrap();
 }

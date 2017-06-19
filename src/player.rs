@@ -1,44 +1,48 @@
+use dungeon::Dungeon;
 use geometry::Point;
+use grid;
+use tile::Tile;
 
 pub struct Player {
-    position: Point,
-    depth: u8,
-    name: [u8; 15],
-    hp: u8,
-    tp: u8,
-    xl: u8,
-    def: i8,
-
+    pub position: Point,
+    pub depth: u8,
+    pub name: [u8; 15],
+    pub hp: u8,
+    pub tp: u8,
+    pub xl: u8,
+    pub def: i8,
+ 
     // Index with element::Element.
-    aptitude: [i8; 4],
-
+    pub aptitude: [i8; 4],
+ 
     // Must be represented as bytes!
-    inventory: [u8; 8],
-
-    appearance_byte: u8,
-
+    pub inventory: [u8; 8],
+ 
+    pub appearance_byte: u8,
+ 
     // Index with byte::BitNumber.
-    spell_memory: [bool; 8],
-
+    pub spell_memory: [bool; 8],
+ 
     // Index with timer::Timer.
-    timer: [u8; 4],
-
+    pub timer: [u8; 4],
+ 
     // The address the player's spells will act on.
-    selected: u8,
-
-    stairs_delta: u8,
-    timer_delta: u8,
-    damage_offset: i8,
-    text_sync: u8,
-
+    pub selected: u8,
+ 
+    pub stairs_delta: u8,
+    pub timer_delta: u8,
+    pub damage_offset: i8,
+    pub text_sync: u8,
+ 
     // Interface
-    show_ram: bool,
+    pub show_ram: bool,
 }
 
 impl Player {
-    pub fn new(position: Point) -> Player {
-        Player {
-            position: position,
+    // enters first level automatically
+    pub fn new(dungeon: &Dungeon) -> Player {
+        let mut player = Player {
+            position: Point(-1, -1),
             depth: 1,
             // TODO naming the player
             name: [97, 98, 99, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -48,7 +52,7 @@ impl Player {
             def: 0,
             aptitude: [0, 0, 0, 0],
             inventory: [0, 0, 0, 0, 0, 0, 0, 0],
-            appearance_byte: 0,
+            appearance_byte: 0b11100000, // white @
             spell_memory: [false; 8],
             timer: [0; 4],
             selected: 0x00,
@@ -57,6 +61,22 @@ impl Player {
             damage_offset: 0,
             text_sync: 0,
             show_ram: false,
+        };
+        player.enter_level(&dungeon, 1, Tile::StairsUp);
+        player
+    }
+
+    // enter a level: put the player on the appropriate stairs.
+    // TODO: special case for level 0
+    fn enter_level(&mut self, dungeon: &Dungeon, depth: u8, entry: Tile) {
+        self.depth = depth;
+
+        for tile_position in grid::RECTANGLE {
+            if dungeon[depth as usize - 1].tiles[tile_position] == entry {
+                self.position = tile_position;
+                break
+            }
         }
+
     }
 }

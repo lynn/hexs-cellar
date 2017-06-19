@@ -31,3 +31,21 @@ pub struct Sprite {
     pub character: char,
     pub color: &'static [Color],
 }
+
+impl Sprite {
+    pub fn of_byte(appearance: u8) -> Self {
+        Sprite {
+            character: ('@' as u8 + (appearance & 0b00011111)) as char,
+            color: match appearance >> 5 {
+                0b000 => DARK,
+                0b001 => BLUE,
+                0b010 => LIME,
+                0b011 => AQUA,
+                0b100 => RED,
+                0b101 => PINK,
+                0b110 => YELLOW,
+                _     => WHITE
+            }
+        }
+    }
+}
