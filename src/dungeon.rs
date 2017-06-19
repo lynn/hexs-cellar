@@ -69,7 +69,7 @@ pub fn build() -> Result<Vec<Grid<Tile>>, MapError> {
     }
 
     let mut maps: Vec<Grid<Tile>> = Vec::with_capacity(255);
-    for (whichmap, scheme) in schemes.iter().enumerate() {
+    for (whichmap, scheme) in (1..).zip(schemes.iter()) {
         let mut map = build_map(whichmap, scheme)?;
         flip_randomly(&mut map);
         maps.push(map)
