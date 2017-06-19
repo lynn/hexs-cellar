@@ -14,6 +14,7 @@ use grid::Grid;
 use item::{Item};
 use geometry::Point;
 use tile::{Tile};
+use util::{random_range, random_range_two};
 
 
 // A dungeon level.
@@ -62,7 +63,7 @@ pub fn build() -> Result<Dungeon, MapError> {
     // until we have 255 distinct levels, make do with duplicates
     let distinct_schemes = schemes.len();
     while schemes.len() < 255 {
-        let which = rand::thread_rng().gen_range(0, distinct_schemes);
+        let which = random_range(0..distinct_schemes);
         let duplicate = schemes[which].clone();
         schemes.push(duplicate)
     }
@@ -128,11 +129,7 @@ fn build_map(whichmap: usize, scheme: &Grid<u8>) -> Result<Grid<Tile>, MapError>
     if stairtotal < 2 {
         return Err(MapError::StairError(whichmap))
     }
-    let upstairs = rand::thread_rng().gen_range(0, stairtotal);
-    let mut downstairs = upstairs;
-    while downstairs == upstairs {
-        downstairs = rand::thread_rng().gen_range(0, stairtotal)
-    }
+    let (upstairs, downstairs) = random_range_two(0..stairtotal);
 
     // a HashMap to keep track of which tile (floor or wall) to use for
     // each letter A-Z in the map scheme (and the inverse for a-z)

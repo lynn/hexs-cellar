@@ -1,3 +1,21 @@
+use rand::{Rng, sample, thread_rng};
+use rand::distributions::range::SampleRange;
+use std::ops::Range;
+
+// Sample a value from a range using the thread rng.
+pub fn random_range<T: PartialOrd + SampleRange>(r: Range<T>) -> T {
+    thread_rng().gen_range(r.start, r.end)
+}
+
+// Sample two distinct values from a range using the thread rng.
+pub fn random_range_two<T: PartialOrd + SampleRange>(r: Range<T>) -> (T, T)
+    where Range<T>: IntoIterator<Item = T> {
+    let mut sample = sample(&mut thread_rng(), r, 2);
+    let b = sample.remove(1);
+    let a = sample.remove(0);
+    (a, b)
+}
+
 pub fn punctuation_name(c: char) -> &'static str {
     match c {
         '!' => "exclamation mark",
