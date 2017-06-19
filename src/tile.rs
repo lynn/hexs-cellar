@@ -17,8 +17,8 @@ impl Tile {
     pub fn sprite(self, player: &Player) -> Sprite {
         match self {
             Tile::Floor =>      Sprite {character: '.',  color: GRAY},
-            Tile::Wall =>       Sprite {character: '#',  color: TEAL},
-            Tile::Door =>       Sprite {character: '+',  color: BROWN},
+            Tile::Wall =>       Sprite::of_byte(player.wall_appearance_byte, false),
+            Tile::Door =>       Sprite::of_byte(player.door_appearance_byte, false),
             Tile::Doorway =>    Sprite {character: '\'', color: BROWN},
             Tile::StairsUp =>   Sprite {character: '<',  color: WHITE},
             Tile::StairsDown => Sprite {character: '>',  color: WHITE},

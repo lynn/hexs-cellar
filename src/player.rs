@@ -11,29 +11,31 @@ pub struct Player {
     pub tp: u8,
     pub xl: u8,
     pub def: i8,
- 
+
     // Index with element::Element.
     pub aptitude: [i8; 4],
- 
+
     // Must be represented as bytes!
     pub inventory: [u8; 8],
- 
+
     pub appearance_byte: u8,
- 
+    pub door_appearance_byte: u8,
+    pub wall_appearance_byte: u8,
+
     // Index with byte::BitNumber.
     pub spell_memory: [bool; 8],
- 
+
     // Index with timer::Timer.
     pub timer: [u8; 4],
- 
+
     // The address the player's spells will act on.
     pub selected: u8,
- 
+
     pub stairs_delta: u8,
     pub timer_delta: u8,
     pub damage_offset: i8,
     pub text_sync: u8,
- 
+
     // Interface
     pub show_ram: bool,
 }
@@ -52,7 +54,9 @@ impl Player {
             def: 0,
             aptitude: [0, 0, 0, 0],
             inventory: [0, 0, 0, 0, 0, 0, 0, 0],
-            appearance_byte: 0b11100000, // white @
+            appearance_byte: 0b11111111, // white @
+            door_appearance_byte: 0b11001010, // brown +
+            wall_appearance_byte: 0b01100010, // teal #
             spell_memory: [false; 8],
             timer: [0; 4],
             selected: 0x00,

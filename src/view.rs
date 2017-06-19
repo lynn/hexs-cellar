@@ -34,7 +34,7 @@ fn cell(sprite: Sprite) -> Cell {
 pub fn draw_level(term: &mut Terminal, level: &Level, player: &Player) {
     for position in grid::RECTANGLE {
         let sprite = if position == player.position {
-            Sprite::of_byte(player.appearance_byte)
+            Sprite::of_byte(player.appearance_byte, true)
         } else {
             level.tiles[position].sprite(player)
         };
