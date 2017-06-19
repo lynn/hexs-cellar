@@ -121,16 +121,18 @@ impl Player {
         let new_position = self.position + direction;
 
         // TODO: check for monsters
-        match level.tiles[new_position] {
-            Tile::Wall => {},
-            Tile::Floor | Tile::Doorway | Tile::StairsUp | Tile::StairsDown => {
-                self.position = new_position
-            },
-            Tile::Door => {
-                level.tiles[new_position] = Tile::Doorway
-            },
-            Tile::Switch(bn) => {
-                // TODO: flip switch
+        if grid::RECTANGLE.contains(new_position) {
+            match level.tiles[new_position] {
+                Tile::Wall => {},
+                Tile::Floor | Tile::Doorway | Tile::StairsUp | Tile::StairsDown => {
+                    self.position = new_position
+                },
+                Tile::Door => {
+                    level.tiles[new_position] = Tile::Doorway
+                },
+                Tile::Switch(bn) => {
+                    // TODO: flip switch
+                }
             }
         }
     }

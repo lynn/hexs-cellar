@@ -104,6 +104,13 @@ impl Rectangle{
     pub fn area(self) -> i32 {
         self.width() * self.height()
     }
+
+    pub fn contains(self, point: Point) -> bool {
+        let Rectangle(Point(x1, y1), Point(x2, y2)) = self;
+        let Point(x, y) = point;
+        // TODO: use inclusive range syntax syntax once stable
+        x1 <= x && x <= x2 && y1 <= y && y <= y2
+    }
 }
 
 pub struct RectangleIter {
