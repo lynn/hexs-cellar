@@ -15,10 +15,10 @@ pub fn sample<T, I>(iterable: I, amount: usize) -> Vec<T>
 }
 
 // Pick a random value from an iterable using the thread RNG.
-pub fn pick<T, I>(iterable: I) -> &T
+pub fn pick<T, I>(iterable: I) -> T
     where I: IntoIterator<Item=T>
 {
-    sample(iterable, 1)[0]
+    sample(iterable, 1).remove(0)
 }
 
 // Sample a value from a range using the thread RNG.

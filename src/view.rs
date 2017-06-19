@@ -1,5 +1,4 @@
 use grid;
-use rand::{thread_rng, sample};
 use rustty;
 use rustty::{Terminal, Cell, Attr};
 use sprite;
@@ -11,8 +10,7 @@ use util::pick;
 
 
 fn cell(sprite: Sprite) -> Cell {
-    let twinkle = *pick(sprite.color);
-    let (color, attr) = match twinkle {
+    let (color, attr) = match *pick(sprite.color) {
         sprite::Color::Navy   => (rustty::Color::Blue,    Attr::Default),
         sprite::Color::Green  => (rustty::Color::Green,   Attr::Default),
         sprite::Color::Teal   => (rustty::Color::Cyan,    Attr::Default),
