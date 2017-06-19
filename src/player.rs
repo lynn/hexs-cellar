@@ -1,4 +1,4 @@
-use dungeon::Dungeon;
+use dungeon::{Dungeon, Level};
 use geometry::Point;
 use grid;
 use tile::Tile;
@@ -74,17 +74,47 @@ impl Player {
         player
     }
 
+    fn current_level<'a>(&self, dungeon: &'a Dungeon) -> &'a Level {
+        &dungeon[self.depth as usize - 1]
+    }
+
+    fn current_level_mut<'a>(&self, dungeon: &'a mut Dungeon) -> &'a mut Level {
+        &mut dungeon[self.depth as usize - 1]
+    }
+
     // enter a level: put the player on the appropriate stairs.
     // TODO: special case for level 0
     fn enter_level(&mut self, dungeon: &Dungeon, depth: u8, entry: Tile) {
         self.depth = depth;
 
         for tile_position in grid::RECTANGLE {
-            if dungeon[depth as usize - 1].tiles[tile_position] == entry {
+            if self.current_level(dungeon).tiles[tile_position] == entry {
                 self.position = tile_position;
                 break
             }
         }
 
+    }
+
+    // try to walk in given direction
+    // TODO: return whether this consumes a turn / requires FOV update or
+    // updates from flipping a switch
+    pub fn step(&mut self, dungeon: &mut Dungeon, direction: Point) {
+        let level = self.current_level_mut(dungeon);
+        let new_position = self.position + direction;
+
+        // TODO: check for monsters
+        match level.tiles[new_position] {
+            Tile::Wall => {},
+            Tile::Floor | Tile::Doorway | Tile::StairsUp | Tile::StairsDown => {
+                self.position = new_position
+            },
+            Tile::Door => {
+                // TODO: open door
+            },
+            Tile::Switch(bn) => {
+                // TODO: flip switch
+            }
+        }
     }
 }
