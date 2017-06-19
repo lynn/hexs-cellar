@@ -24,14 +24,14 @@ use geometry::Point;
 use player::Player;
 
 fn main() {
-    let mut terminal = Terminal::new().unwrap();
-
     let mut dungeon = dungeon::build().unwrap_or_else(|e| {
         writeln!(std::io::stderr(), "{}", e).unwrap();
         std::process::exit(1)
     });
 
     let mut player = Player::new(&dungeon);
+
+    let mut terminal = Terminal::new().unwrap();
 
     loop {
         view::draw_level(&mut terminal, &dungeon, &player);
