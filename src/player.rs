@@ -2,6 +2,7 @@ use dungeon::Dungeon;
 use geometry::Point;
 use grid;
 use tile::Tile;
+use item;
 
 pub struct Player {
     pub position: Point,
@@ -38,6 +39,8 @@ pub struct Player {
 
     // Interface
     pub show_ram: bool,
+
+    pub item_appearance_map: item::AppearanceMap,
 }
 
 impl Player {
@@ -65,6 +68,7 @@ impl Player {
             damage_offset: 0,
             text_sync: 0,
             show_ram: false,
+            item_appearance_map: item::random_appearance_map(),
         };
         player.enter_level(&dungeon, 1, Tile::StairsUp);
         player

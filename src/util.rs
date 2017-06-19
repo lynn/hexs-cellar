@@ -1,18 +1,38 @@
-use rand::{Rng, sample, thread_rng};
+use rand::{self, Rng, thread_rng};
 use rand::distributions::range::SampleRange;
 use std::ops::Range;
 
-// Sample a value from a range using the thread rng.
+// Flip a coin using the thread RNG.
+pub fn coin_flip() -> bool {
+    thread_rng().gen()
+}
+
+// Sample `amount` values from an iterable using the thread RNG.
+pub fn sample<T, I>(iterable: I, amount: usize) -> Vec<T>
+    where I: IntoIterator<Item=T>
+{
+    rand::sample(&mut thread_rng(), iterable, amount)
+}
+
+// Pick a random value from an iterable using the thread RNG.
+pub fn pick<T, I>(iterable: I) -> &T
+    where I: IntoIterator<Item=T>
+{
+    sample(iterable, 1)[0]
+}
+
+// Sample a value from a range using the thread RNG.
 pub fn random_range<T: PartialOrd + SampleRange>(r: Range<T>) -> T {
     thread_rng().gen_range(r.start, r.end)
 }
 
-// Sample two distinct values from a range using the thread rng.
+// Sample two distinct values from a range using the thread RNG.
 pub fn random_range_two<T: PartialOrd + SampleRange>(r: Range<T>) -> (T, T)
-    where Range<T>: IntoIterator<Item = T> {
-    let mut sample = sample(&mut thread_rng(), r, 2);
-    let b = sample.remove(1);
-    let a = sample.remove(0);
+    where Range<T>: IntoIterator<Item = T>
+{
+    let mut s = sample(r, 2);
+    let b = s.remove(1);
+    let a = s.remove(0);
     (a, b)
 }
 

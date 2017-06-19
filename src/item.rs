@@ -1,6 +1,7 @@
 use rand;
 use rand::Rng;
 use sprite::*;
+use util::{coin_flip, random_range};
 
 #[derive(Copy, Clone)]
 pub enum Appearance {
@@ -44,6 +45,46 @@ pub enum Appearance {
 
     Palantir = 0x1e,
     GoldenPendant = 0x1f,
+}
+
+impl Appearance {
+    pub fn from_byte(byte: u8) -> Appearance {
+        use self::Appearance::*;
+        match byte {
+            0x01 => Crowbar,
+            0x02 => VolcanicShard,
+            0x03 => Taser,
+            0x04 => JellyGun,
+            0x05 => Lumimelon,
+            0x06 => Glowfruit,
+            0x07 => Shineapple,
+            0x08 => RoundPill,
+            0x09 => TinyPill,
+            0x0a => DiamondPill,
+            0x0b => OblongPill,
+            0x0c => SoftPill,
+            0x0d => HexagonalPill,
+            0x0e => WidePill,
+            0x0f => TranslucentPill,
+            0x10 => ThickSweater,
+            0x11 => BallisticVest,
+            0x12 => DragonScaleMail,
+            0x13 => TitaniumNecklace,
+            0x14 => RustyNecklace,
+            0x15 => CrimsonNecklace,
+            0x16 => GlowingNecklace,
+            0x17 => UnholyNecklace,
+            0x18 => Wand,
+            0x19 => Manual,
+            0x1a => Guidebook,
+            0x1b => RedDevice,
+            0x1c => YellowDevice,
+            0x1d => BlueDevice,
+            0x1e => Palantir,
+            0x1f => GoldenPendant,
+            _ => NoItem,
+        }
+    }
 }
 
 struct AppearanceInfo {
@@ -142,7 +183,7 @@ pub enum Kind {
 
 // A map from Appearances (0x00 through 0x1f) to Kinds.
 // NoItem is mapped to None; other items are mapped to Some<Kind>.
-type AppearanceMap = [Option<Kind>; 0x20];
+pub type AppearanceMap = [Option<Kind>; 0x20];
 
 // Make a random appearance map by shuffling the unidentified fruits, pills, and devices.
 pub fn random_appearance_map() -> AppearanceMap {
@@ -204,7 +245,7 @@ pub fn random_appearance_map() -> AppearanceMap {
 
 pub struct Item {
     // 5 high bits
-    kind: Kind,
+    appearance: Appearance,
 
     // 3 low bits
     enchanted: bool,
@@ -213,6 +254,7 @@ pub struct Item {
 }
 
 impl Item {
+/*
     // An inventory byte with its five high bits cleared represents an
     // empty inventory slot; `from_byte` returns None for such bytes.
     pub fn from_byte(byte: u8, appearance_map: &AppearanceMap) -> Option<Item> {
@@ -234,5 +276,19 @@ impl Item {
             }
         }
         panic!("Invalid AppearanceMap!");
+    }
+*/
+
+    pub fn spawn() -> Item {
+        Item {
+            appearance: Appearance::from_byte(random_range(0x00..0x20)),
+            enchanted: coin_flip(),
+            equipped: coin_flip(),
+            cursed: coin_flip(),
+        }
+    }
+
+    pub fn sprite(&self) -> Sprite {
+        self.appearance.sprite()
     }
 }

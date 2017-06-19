@@ -7,14 +7,18 @@ use std::io::prelude::*;
 use std::result::Result;
 use std::convert::From;
 use std::ascii::AsciiExt;
+use std::iter::Iterator;
+use std::iter::FromIterator;
 use rand;
 use rand::Rng;
 use grid;
 use grid::Grid;
 use item::{Item};
+use player::Player;
+use sprite::Sprite;
 use geometry::Point;
 use tile::{Tile};
-use util::{random_range, random_range_two};
+use util::{coin_flip, random_range, random_range_two, sample};
 
 
 // A dungeon level.
@@ -22,6 +26,18 @@ pub struct Level {
     pub tiles: Grid<Tile>,
     pub items: HashMap<Point, Item>,
     pub visible: HashSet<Point>,
+}
+
+impl Level {
+    pub fn sprite_at(&self, position: Point, player: &Player) -> Sprite {
+        if position == player.position {
+            Sprite::of_byte(player.appearance_byte, true)
+        } else if let Some(item) = self.items.get(&position) {
+            item.sprite()
+        } else {
+            self.tiles[position].sprite(player)
+        }
+    }
 }
 
 pub type Dungeon = Vec<Level>;
@@ -56,6 +72,13 @@ impl From<io::Error> for MapError {
 }
 
 
+fn spawn_items(map: &Grid<Tile>) -> HashMap<Point, Item> {
+    let floors = grid::RECTANGLE.into_iter().filter(|p| map[*p] == Tile::Floor);
+    let locations = sample(floors, 5);
+    HashMap::from_iter(locations.iter().map(|p| (*p, Item::spawn())))
+}
+
+
 // TODO: make early levels easy, handle special case for level 255
 pub fn build() -> Result<Dungeon, MapError> {
     let mut schemes = read_maps()?;
@@ -79,8 +102,8 @@ pub fn build() -> Result<Dungeon, MapError> {
 
     let dungeon = maps.into_iter().map(|map| {
         Level {
+            items: spawn_items(&map),
             tiles: map,
-            items: HashMap::new(),
             visible: HashSet::new()
         }
     }).collect();
@@ -155,8 +178,7 @@ fn build_map(whichmap: usize, scheme: &Grid<u8>) -> Result<Grid<Tile>, MapError>
             }
             b'A' ... b'Z' | b'a' ... b'z' => {
                 let normalized = srctile.to_ascii_uppercase();
-                let selection = *tilechoices.entry(normalized).or_insert_with(||
-                    rand::thread_rng().gen() );
+                let selection = *tilechoices.entry(normalized).or_insert_with(coin_flip);
                 // flip selection for lowercase letters
                 // TODO: use srctile.is_ascii_uppercase()
                 // once ascii_ctype is stable
@@ -174,13 +196,13 @@ fn build_map(whichmap: usize, scheme: &Grid<u8>) -> Result<Grid<Tile>, MapError>
 }
 
 fn flip_randomly<T>(map: &mut Grid<T>) {
-    if rand::thread_rng().gen() {
+    if coin_flip() {
         // flip horizontally
         for row in map.grid.chunks_mut(grid::WIDTH) {
             row.reverse()
         }
     }
-    if rand::thread_rng().gen() {
+    if coin_flip() {
         // flip both horizontally and vertically
         map.grid.reverse()
     }

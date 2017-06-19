@@ -7,10 +7,11 @@ use sprite::Sprite;
 use geometry::*;
 use dungeon::Level;
 use player::Player;
+use util::pick;
 
 
 fn cell(sprite: Sprite) -> Cell {
-    let twinkle = *sample(&mut thread_rng(), sprite.color, 1)[0];
+    let twinkle = *pick(sprite.color);
     let (color, attr) = match twinkle {
         sprite::Color::Navy   => (rustty::Color::Blue,    Attr::Default),
         sprite::Color::Green  => (rustty::Color::Green,   Attr::Default),
@@ -33,12 +34,7 @@ fn cell(sprite: Sprite) -> Cell {
 
 pub fn draw_level(term: &mut Terminal, level: &Level, player: &Player) {
     for position in grid::RECTANGLE {
-        let sprite = if position == player.position {
-            Sprite::of_byte(player.appearance_byte, true)
-        } else {
-            level.tiles[position].sprite(player)
-        };
-
+        let sprite = level.sprite_at(position, player);
         let Point(row, col) = position;
         term[(row as usize, col as usize)] = cell(sprite)
     }
