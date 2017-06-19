@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 extern crate rand;
 extern crate rustty;
-use rustty::Terminal;
+use rustty::{Event, Terminal};
 use std::io::Write;
 use std::time::Duration;
 
@@ -30,7 +30,12 @@ fn main() {
 
     let player = player::Player::new(&dungeon);
 
-    view::draw_level(&mut terminal, &dungeon[0], &player);
-    terminal.swap_buffers().unwrap();
-    terminal.get_event(Duration::from_secs(99999)).unwrap();
+    loop {
+        view::draw_level(&mut terminal, &dungeon[0], &player);
+        terminal.swap_buffers().unwrap();
+        let event = terminal.get_event(Duration::from_secs(99999)).unwrap().unwrap();
+        if event == Event::Key('q') {
+            break
+        }
+    }
 }

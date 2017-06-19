@@ -74,7 +74,7 @@ impl From<io::Error> for MapError {
 
 fn spawn_items(map: &Grid<Tile>) -> HashMap<Point, Item> {
     let floors = grid::RECTANGLE.into_iter().filter(|p| map[*p] == Tile::Floor);
-    let locations = sample(floors, 5);
+    let locations = sample(floors, 50);
     HashMap::from_iter(locations.iter().map(|p| (*p, Item::spawn())))
 }
 

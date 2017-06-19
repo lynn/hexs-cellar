@@ -1,6 +1,6 @@
 use grid;
 use rustty;
-use rustty::{Terminal, Cell, Attr};
+use rustty::{Terminal, Cell, Attr, HasPosition};
 use sprite;
 use sprite::Sprite;
 use geometry::*;
@@ -36,4 +36,7 @@ pub fn draw_level(term: &mut Terminal, level: &Level, player: &Player) {
         let Point(row, col) = position;
         term[(row as usize, col as usize)] = cell(sprite)
     }
+    let mut l = rustty::ui::create_button("q to quit", Some('q'));
+    l.set_origin((0, 13));
+    l.draw_into(term);
 }
