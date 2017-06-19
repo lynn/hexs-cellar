@@ -1,4 +1,4 @@
-use point::Point;
+use geometry::Point;
 
 pub struct Player {
     position: Point,

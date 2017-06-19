@@ -5,6 +5,7 @@ use rustty;
 use rustty::{Terminal, Cell, Attr};
 use sprite;
 use sprite::Sprite;
+use geometry::*;
 
 use tile::Tile;
 
@@ -31,9 +32,8 @@ fn cell(sprite: Sprite) -> Cell {
 }
 
 pub fn draw_level(term: &mut Terminal, map: &Grid<Tile>) {
-    for col in 0..grid::HEIGHT {
-        for row in 0..grid::WIDTH {
-            term[(row, col)] = cell(map[(row, col)].sprite());
-        }
+    for point in grid::RECTANGLE {
+        let Point(row, col) = point;
+        term[(row as usize, col as usize)] = cell(map[point].sprite());
     }
 }

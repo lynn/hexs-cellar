@@ -12,7 +12,7 @@ use rand::Rng;
 use grid;
 use grid::Grid;
 use item::{Item};
-use point::{Point};
+use geometry::Point;
 use tile::{Tile};
 
 

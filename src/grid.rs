@@ -1,8 +1,10 @@
 use std::ops::{Index, IndexMut};
-use point::Point;
+use geometry::*;
 
 pub const WIDTH: usize = 19;
 pub const HEIGHT: usize = 13;
+pub const RECTANGLE: Rectangle =
+    Rectangle(Point(0, 0), Point(WIDTH as i32 - 1, HEIGHT as i32 - 1));
 
 #[derive(Clone)]
 pub struct Grid<T> {
