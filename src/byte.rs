@@ -1,4 +1,4 @@
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq, Eq)]
 pub enum BitNumber {
     Bit0, Bit1, Bit2, Bit3, Bit4, Bit5, Bit6, Bit7
 }
