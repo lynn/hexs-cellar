@@ -74,26 +74,43 @@ impl Player {
         player
     }
 
-    fn current_level<'a>(&self, dungeon: &'a Dungeon) -> &'a Level {
+    pub fn current_level<'a>(&self, dungeon: &'a Dungeon) -> &'a Level {
         &dungeon[self.depth as usize - 1]
     }
 
-    fn current_level_mut<'a>(&self, dungeon: &'a mut Dungeon) -> &'a mut Level {
+    pub fn current_level_mut<'a>(&self, dungeon: &'a mut Dungeon) -> &'a mut Level {
         &mut dungeon[self.depth as usize - 1]
     }
 
     // enter a level: put the player on the appropriate stairs.
-    // TODO: special case for level 0
     fn enter_level(&mut self, dungeon: &Dungeon, depth: u8, entry: Tile) {
-        self.depth = depth;
+        if depth == 0 {
+            // TODO: special case for level 0
+        } else {
+            self.depth = depth;
 
-        for tile_position in grid::RECTANGLE {
-            if self.current_level(dungeon).tiles[tile_position] == entry {
-                self.position = tile_position;
-                break
+            for tile_position in grid::RECTANGLE {
+                if self.current_level(dungeon).tiles[tile_position] == entry {
+                    self.position = tile_position;
+                    break
+                }
             }
         }
 
+    }
+
+    // TODO: factor these better if they end up growing
+    pub fn try_stairs_up(&mut self, dungeon: &Dungeon) {
+        if self.current_level(dungeon).tiles[self.position] == Tile::StairsUp {
+            let new_depth = self.depth - 1;
+            self.enter_level(dungeon, new_depth, Tile::StairsDown)
+        }
+    }
+    pub fn try_stairs_down(&mut self, dungeon: &Dungeon) {
+        if self.current_level(dungeon).tiles[self.position] == Tile::StairsDown {
+            let new_depth = self.depth + 1;
+            self.enter_level(dungeon, new_depth, Tile::StairsUp)
+        }
     }
 
     // try to walk in given direction

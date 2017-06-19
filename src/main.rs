@@ -34,11 +34,13 @@ fn main() {
     let mut player = Player::new(&dungeon);
 
     loop {
-        view::draw_level(&mut terminal, &dungeon[0], &player);
+        view::draw_level(&mut terminal, &dungeon, &player);
         terminal.swap_buffers().unwrap();
         if let Some(Event::Key(key)) = terminal.get_event(Duration::from_secs(99999)).unwrap() {
             match key {
                 'q' => break,
+                '<' => player.try_stairs_up(&dungeon),
+                '>' => player.try_stairs_down(&dungeon),
                 _ => {
                     // try movement commands
                     if let Some(step_direction) = key_to_direction(key) {

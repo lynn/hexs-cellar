@@ -5,7 +5,7 @@ use rustty::ui::Painter;
 use sprite;
 use sprite::Sprite;
 use geometry::*;
-use dungeon::Level;
+use dungeon::Dungeon;
 use player::Player;
 use util::pick;
 
@@ -31,7 +31,8 @@ fn cell(sprite: Sprite) -> Cell {
     Cell::new(sprite.character, color, rustty::Color::Default, attr)
 }
 
-pub fn draw_level(term: &mut Terminal, level: &Level, player: &Player) {
+pub fn draw_level(term: &mut Terminal, dungeon: &Dungeon, player: &Player) {
+    let level = player.current_level(&dungeon);
     for position in grid::RECTANGLE {
         let sprite = level.sprite_at(position, player);
         let Point(row, col) = position;
