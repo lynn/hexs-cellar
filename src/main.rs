@@ -33,9 +33,9 @@ fn main() {
     loop {
         view::draw_level(&mut terminal, &dungeon[0], &player);
         terminal.swap_buffers().unwrap();
-        let event = terminal.get_event(Duration::from_secs(99999)).unwrap().unwrap();
-        if event == Event::Key('q') {
-            break
+        match terminal.get_event(Duration::from_secs(99999)).unwrap() {
+            Some(Event::Key('q')) => break,
+            _ => {}
         }
     }
 }
