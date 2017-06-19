@@ -110,7 +110,7 @@ impl Player {
                 self.position = new_position
             },
             Tile::Door => {
-                // TODO: open door
+                level.tiles[new_position] = Tile::Doorway
             },
             Tile::Switch(bn) => {
                 // TODO: flip switch
