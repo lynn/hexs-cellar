@@ -32,13 +32,13 @@ impl<T> IndexMut<(usize, usize)> for Grid<T> {
 
 impl<T> Index<Point> for Grid<T> {
     type Output = T;
-    fn index(&self, Point(x, y): Point) -> &T {
-        &self[(x as usize, y as usize)]
+    fn index(&self, position: Point) -> &T {
+        &self.grid[position.as_byte() as usize]
     }
 }
 
 impl<T> IndexMut<Point> for Grid<T> {
-    fn index_mut(&mut self, Point(x, y): Point) -> &mut T {
-        &mut self[(x as usize, y as usize)]
+    fn index_mut(&mut self, position: Point) -> &mut T {
+        &mut self.grid[position.as_byte() as usize]
     }
 }
