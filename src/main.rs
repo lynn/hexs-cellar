@@ -41,6 +41,11 @@ fn main() {
                 'q' => break,
                 '<' => player.try_stairs_up(&dungeon),
                 '>' => player.try_stairs_down(&dungeon),
+                '\x1b' => {
+                    // eat escape sequences
+                    while terminal.get_event(Duration::from_millis(1)).unwrap().is_some() {
+                    }
+                }
                 _ => {
                     // try movement commands
                     if let Some(step_direction) = key_to_direction(key) {
