@@ -1,13 +1,12 @@
 use grid;
-use grid::Grid;
 use rand::{thread_rng, sample};
 use rustty;
 use rustty::{Terminal, Cell, Attr};
 use sprite;
 use sprite::Sprite;
 use geometry::*;
+use dungeon::Level;
 
-use tile::Tile;
 
 fn cell(sprite: Sprite) -> Cell {
     let twinkle = *sample(&mut thread_rng(), sprite.color, 1)[0];
@@ -31,9 +30,9 @@ fn cell(sprite: Sprite) -> Cell {
     Cell::new(sprite.character, color, rustty::Color::Default, attr)
 }
 
-pub fn draw_level(term: &mut Terminal, map: &Grid<Tile>) {
+pub fn draw_level(term: &mut Terminal, level: &Level) {
     for point in grid::RECTANGLE {
         let Point(row, col) = point;
-        term[(row as usize, col as usize)] = cell(map[point].sprite());
+        term[(row as usize, col as usize)] = cell(level.tiles[point].sprite());
     }
 }

@@ -18,13 +18,12 @@ use tile::{Tile};
 
 // A dungeon level.
 pub struct Level {
-    depth: u8,
-    tiles: Grid<Tile>,
-    items: HashMap<Point, Item>,
-    visible: HashSet<Point>,
+    pub tiles: Grid<Tile>,
+    pub items: HashMap<Point, Item>,
+    pub visible: HashSet<Point>,
 }
 
-pub type Dungeon = [Level; 256];
+pub type Dungeon = Vec<Level>;
 
 
 pub enum MapError {
@@ -57,7 +56,7 @@ impl From<io::Error> for MapError {
 
 
 // TODO: make early levels easy, handle special case for level 255
-pub fn build() -> Result<Vec<Grid<Tile>>, MapError> {
+pub fn build() -> Result<Dungeon, MapError> {
     let mut schemes = read_maps()?;
 
     // until we have 255 distinct levels, make do with duplicates
@@ -77,7 +76,15 @@ pub fn build() -> Result<Vec<Grid<Tile>>, MapError> {
 
     rand::thread_rng().shuffle(&mut maps[..]);
 
-    Ok(maps)
+    let dungeon = maps.into_iter().map(|map| {
+        Level {
+            tiles: map,
+            items: HashMap::new(),
+            visible: HashSet::new()
+        }
+    }).collect();
+
+    Ok(dungeon)
 }
 
 type Lines<'a> = &'a mut Iterator<Item=io::Result<String>>;
