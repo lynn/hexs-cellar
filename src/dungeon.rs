@@ -12,14 +12,14 @@ use std::iter::FromIterator;
 use rand;
 use rand::Rng;
 use byte::BitNumber;
+use geometry::Point;
 use grid;
 use grid::Grid;
 use item::{Item};
-use player::Player;
 use sprite::Sprite;
-use geometry::Point;
 use tile::{Tile};
 use util::{coin_flip, random_range, random_range_two, sample};
+use world::World;
 
 
 // A dungeon level.
@@ -30,13 +30,13 @@ pub struct Level {
 }
 
 impl Level {
-    pub fn sprite_at(&self, position: Point, player: &Player) -> Sprite {
-        if position == player.position {
-            Sprite::of_byte(player.appearance_byte, true)
+    pub fn sprite_at(&self, position: Point, world: &World) -> Sprite {
+        if position == world.player.position {
+            Sprite::of_byte(world.player_appearance_byte, true)
         } else if let Some(item) = self.items.get(&position) {
             item.sprite()
         } else {
-            self.tiles[position].sprite(player)
+            self.tiles[position].sprite(world)
         }
     }
 }

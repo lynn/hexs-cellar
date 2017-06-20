@@ -5,9 +5,8 @@ use rustty::ui::Painter;
 use sprite;
 use sprite::Sprite;
 use geometry::*;
-use dungeon::Dungeon;
-use player::Player;
 use util::pick;
+use world::World;
 
 
 fn cell(sprite: Sprite) -> Cell {
@@ -31,8 +30,9 @@ fn cell(sprite: Sprite) -> Cell {
     Cell::new(sprite.character, color, rustty::Color::Default, attr)
 }
 
-pub fn draw_level(term: &mut Terminal, dungeon: &Dungeon, player: &Player) {
-    let level = player.current_level(&dungeon);
+pub fn draw(term: &mut Terminal, world: &World) {
+    // TODO: replace this with rustty:ui stuff... actually TODO write an actual dang view
+    let level = world.player.current_level(&world.dungeon);
     let blue = Cell::new('#', rustty::Color::Blue, rustty::Color::Blue, Attr::Default);
     for position in grid::RECTANGLE.grow(1) {
         let Point(col, row) = position;
@@ -41,8 +41,8 @@ pub fn draw_level(term: &mut Terminal, dungeon: &Dungeon, player: &Player) {
     for position in grid::RECTANGLE {
         let sprite =
             if level.known_tiles.contains(&position) {
-                let visible = player.visible.contains(&position);
-                level.sprite_at(position, player).darken(!visible)
+                let visible = world.player.visible.contains(&position);
+                level.sprite_at(position, &world).darken(!visible)
             } else {
                 sprite::HIDDEN
             };

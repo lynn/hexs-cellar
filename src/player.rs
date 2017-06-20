@@ -4,7 +4,6 @@ use dungeon::{Dungeon, Level};
 use geometry::Point;
 use grid;
 use tile::Tile;
-use item;
 use fov;
 
 pub struct Player {
@@ -21,10 +20,6 @@ pub struct Player {
 
     // Must be represented as bytes!
     pub inventory: [u8; 8],
-
-    pub appearance_byte: u8,
-    pub door_appearance_byte: u8,
-    pub wall_appearance_byte: u8,
 
     // Index with byte::BitNumber.
     pub spell_memory: [bool; 8],
@@ -43,8 +38,6 @@ pub struct Player {
     // Interface
     pub show_ram: bool,
 
-    pub item_appearance_map: item::AppearanceMap,
-
     pub visible: HashSet<Point>
 }
 
@@ -62,9 +55,6 @@ impl Player {
             def: 0,
             aptitude: [0, 0, 0, 0],
             inventory: [0, 0, 0, 0, 0, 0, 0, 0],
-            appearance_byte: 0b11111111, // white @
-            door_appearance_byte: 0b11001010, // brown +
-            wall_appearance_byte: 0b01100010, // teal #
             spell_memory: [false; 8],
             timer: [0; 4],
             selected: 0x00,
@@ -73,7 +63,6 @@ impl Player {
             damage_offset: 0,
             text_sync: 0,
             show_ram: false,
-            item_appearance_map: item::random_appearance_map(),
             visible: HashSet::new()
         };
         player.enter_level(dungeon, 1, Tile::StairsUp);

@@ -2,7 +2,6 @@
 extern crate rand;
 extern crate rustty;
 use rustty::{Event, Terminal};
-use std::io::Write;
 use std::time::Duration;
 
 mod addr;
@@ -20,28 +19,23 @@ mod tile;
 mod timer;
 mod util;
 mod view;
+mod world;
 
+use world::World;
 use geometry::Point;
-use player::Player;
 
 fn main() {
-    let mut dungeon = dungeon::build().unwrap_or_else(|e| {
-        writeln!(std::io::stderr(), "{}", e).unwrap();
-        std::process::exit(1)
-    });
-
-    let mut player = Player::new(&mut dungeon);
-
+    let mut world = World::new();
     let mut terminal = Terminal::new().unwrap();
 
     loop {
-        view::draw_level(&mut terminal, &dungeon, &player);
+        view::draw(&mut terminal, &world);
         terminal.swap_buffers().unwrap();
         if let Some(Event::Key(key)) = terminal.get_event(Duration::from_secs(99999)).unwrap() {
             match key {
                 'q' => break,
-                '<' => player.try_stairs_up(&mut dungeon),
-                '>' => player.try_stairs_down(&mut dungeon),
+                '<' => world.player.try_stairs_up(&mut world.dungeon),
+                '>' => world.player.try_stairs_down(&mut world.dungeon),
                 '\x1b' => {
                     // eat escape sequences
                     while terminal.get_event(Duration::from_millis(1)).unwrap().is_some() {
@@ -50,7 +44,7 @@ fn main() {
                 _ => {
                     // try movement commands
                     if let Some(step_direction) = key_to_direction(key) {
-                        player.step(&mut dungeon, step_direction)
+                        world.player.step(&mut world.dungeon, step_direction)
                     }
                 }
             }
