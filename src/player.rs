@@ -1,4 +1,5 @@
 use std::collections::HashSet;
+use byte;
 use dungeon::{Dungeon, Level};
 use geometry::Point;
 use grid;
@@ -129,21 +130,22 @@ impl Player {
         let mut level = self.current_level_mut(dungeon);
         let new_position = self.position + direction;
 
+        // don't let the player step out of bounds
+        if !grid::RECTANGLE.contains(new_position) { return }
+
         // TODO: check for monsters
-        if grid::RECTANGLE.contains(new_position) {
-            match level.tiles[new_position] {
-                Tile::Wall => {},
-                Tile::Floor | Tile::Doorway | Tile::StairsUp | Tile::StairsDown => {
-                    self.position = new_position;
-                    self.update_visibility(&mut level)
-                },
-                Tile::Door => {
-                    level.tiles[new_position] = Tile::Doorway;
-                    self.update_visibility(&mut level)
-                },
-                Tile::Switch(bn) => {
-                    // TODO: flip switch
-                }
+        match level.tiles[new_position] {
+            Tile::Wall => {},
+            Tile::Floor | Tile::Doorway | Tile::StairsUp | Tile::StairsDown => {
+                self.position = new_position;
+                self.update_visibility(&mut level)
+            },
+            Tile::Door => {
+                level.tiles[new_position] = Tile::Doorway;
+                self.update_visibility(&mut level)
+            },
+            Tile::Switch(bn) => {
+                self.selected = byte::flip(self.selected, bn);
             }
         }
     }
