@@ -33,6 +33,11 @@ fn cell(sprite: Sprite) -> Cell {
 
 pub fn draw_level(term: &mut Terminal, dungeon: &Dungeon, player: &Player) {
     let level = player.current_level(&dungeon);
+    let blue = Cell::new('#', rustty::Color::Blue, rustty::Color::Blue, Attr::Default);
+    for position in grid::RECTANGLE.grow(1) {
+        let Point(col, row) = position;
+        term[((col + 30) as usize, (row + 4) as usize)] = blue;
+    }
     for position in grid::RECTANGLE {
         let sprite =
             if level.known_tiles.contains(&position) {
@@ -41,8 +46,8 @@ pub fn draw_level(term: &mut Terminal, dungeon: &Dungeon, player: &Player) {
             } else {
                 sprite::HIDDEN
             };
-        let Point(row, col) = position;
-        term[(row as usize, col as usize)] = cell(sprite)
+        let Point(col, row) = position;
+        term[((col + 30) as usize, (row + 4) as usize)] = cell(sprite)
     }
-    term.printline(0, 13, "q to quit");
+    term.printline(30, 18, "q to quit");
 }
