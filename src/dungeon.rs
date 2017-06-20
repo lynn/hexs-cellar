@@ -25,7 +25,7 @@ use util::{coin_flip, random_range, random_range_two, sample};
 pub struct Level {
     pub tiles: Grid<Tile>,
     pub items: HashMap<Point, Item>,
-    pub visible: HashSet<Point>,
+    pub known_tiles: HashSet<Point>,
 }
 
 impl Level {
@@ -104,7 +104,7 @@ pub fn build() -> Result<Dungeon, MapError> {
         Level {
             items: spawn_items(&map),
             tiles: map,
-            visible: HashSet::new()
+            known_tiles: HashSet::new()
         }
     }).collect();
 

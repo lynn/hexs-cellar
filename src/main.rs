@@ -8,6 +8,7 @@ use std::time::Duration;
 mod addr;
 mod byte;
 mod dungeon;
+mod fov;
 mod geometry;
 mod grid;
 mod item;
@@ -29,7 +30,7 @@ fn main() {
         std::process::exit(1)
     });
 
-    let mut player = Player::new(&dungeon);
+    let mut player = Player::new(&mut dungeon);
 
     let mut terminal = Terminal::new().unwrap();
 
@@ -39,8 +40,8 @@ fn main() {
         if let Some(Event::Key(key)) = terminal.get_event(Duration::from_secs(99999)).unwrap() {
             match key {
                 'q' => break,
-                '<' => player.try_stairs_up(&dungeon),
-                '>' => player.try_stairs_down(&dungeon),
+                '<' => player.try_stairs_up(&mut dungeon),
+                '>' => player.try_stairs_down(&mut dungeon),
                 '\x1b' => {
                     // eat escape sequences
                     while terminal.get_event(Duration::from_millis(1)).unwrap().is_some() {

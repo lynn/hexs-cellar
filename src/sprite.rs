@@ -32,6 +32,11 @@ pub struct Sprite {
     pub color: &'static [Color],
 }
 
+pub const HIDDEN: Sprite = Sprite {
+    character: ' ',
+    color: DARK
+};
+
 impl Sprite {
     pub fn of_byte(appearance: u8, bright: bool) -> Self {
         Sprite {
@@ -54,6 +59,17 @@ impl Sprite {
                 (0b110, true)  => YELLOW,
                 _              => WHITE,
             }
+        }
+    }
+
+    pub fn darken(self, shade: bool) -> Self {
+        if shade {
+            Sprite {
+                character: self.character,
+                color: DARK
+            }
+        } else {
+            self
         }
     }
 }

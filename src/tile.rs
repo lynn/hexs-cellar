@@ -28,4 +28,11 @@ impl Tile {
             },
         }
     }
+
+    pub fn permits_sight(self) -> bool {
+        match self {
+            Tile::Floor | Tile::Doorway | Tile::StairsUp | Tile::StairsDown => true,
+            Tile::Wall | Tile::Door | Tile::Switch(_) => false
+        }
+    }
 }

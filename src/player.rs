@@ -1,8 +1,10 @@
+use std::collections::HashSet;
 use dungeon::{Dungeon, Level};
 use geometry::Point;
 use grid;
 use tile::Tile;
 use item;
+use fov;
 
 pub struct Player {
     pub position: Point,
@@ -41,11 +43,13 @@ pub struct Player {
     pub show_ram: bool,
 
     pub item_appearance_map: item::AppearanceMap,
+
+    pub visible: HashSet<Point>
 }
 
 impl Player {
     // enters first level automatically
-    pub fn new(dungeon: &Dungeon) -> Player {
+    pub fn new(dungeon: &mut Dungeon) -> Player {
         let mut player = Player {
             position: Point(-1, -1),
             depth: 1,
@@ -69,8 +73,9 @@ impl Player {
             text_sync: 0,
             show_ram: false,
             item_appearance_map: item::random_appearance_map(),
+            visible: HashSet::new()
         };
-        player.enter_level(&dungeon, 1, Tile::StairsUp);
+        player.enter_level(dungeon, 1, Tile::StairsUp);
         player
     }
 
@@ -83,30 +88,34 @@ impl Player {
     }
 
     // enter a level: put the player on the appropriate stairs.
-    fn enter_level(&mut self, dungeon: &Dungeon, depth: u8, entry: Tile) {
+    fn enter_level(&mut self, dungeon: &mut Dungeon, depth: u8, entry: Tile) {
         if depth == 0 {
             // TODO: special case for level 0
         } else {
             self.depth = depth;
 
+            let mut level = self.current_level_mut(dungeon);
+
             for tile_position in grid::RECTANGLE {
-                if self.current_level(dungeon).tiles[tile_position] == entry {
+                if level.tiles[tile_position] == entry {
                     self.position = tile_position;
                     break
                 }
             }
+
+            self.update_visibility(&mut level)
         }
 
     }
 
     // TODO: factor these better if they end up growing
-    pub fn try_stairs_up(&mut self, dungeon: &Dungeon) {
+    pub fn try_stairs_up(&mut self, dungeon: &mut Dungeon) {
         if self.current_level(dungeon).tiles[self.position] == Tile::StairsUp {
             let new_depth = self.depth - 1;
             self.enter_level(dungeon, new_depth, Tile::StairsDown)
         }
     }
-    pub fn try_stairs_down(&mut self, dungeon: &Dungeon) {
+    pub fn try_stairs_down(&mut self, dungeon: &mut Dungeon) {
         if self.current_level(dungeon).tiles[self.position] == Tile::StairsDown {
             let new_depth = self.depth + 1;
             self.enter_level(dungeon, new_depth, Tile::StairsUp)
@@ -114,10 +123,10 @@ impl Player {
     }
 
     // try to walk in given direction
-    // TODO: return whether this consumes a turn / requires FOV update or
-    // updates from flipping a switch
+    // TODO: return whether this consumes a turn, handle potential updates from
+    // flipping switches
     pub fn step(&mut self, dungeon: &mut Dungeon, direction: Point) {
-        let level = self.current_level_mut(dungeon);
+        let mut level = self.current_level_mut(dungeon);
         let new_position = self.position + direction;
 
         // TODO: check for monsters
@@ -125,15 +134,22 @@ impl Player {
             match level.tiles[new_position] {
                 Tile::Wall => {},
                 Tile::Floor | Tile::Doorway | Tile::StairsUp | Tile::StairsDown => {
-                    self.position = new_position
+                    self.position = new_position;
+                    self.update_visibility(&mut level)
                 },
                 Tile::Door => {
-                    level.tiles[new_position] = Tile::Doorway
+                    level.tiles[new_position] = Tile::Doorway;
+                    self.update_visibility(&mut level)
                 },
                 Tile::Switch(bn) => {
                     // TODO: flip switch
                 }
             }
         }
+    }
+
+    fn update_visibility(&mut self, level: &mut Level) {
+        self.visible = fov::calculate(level, self.position);
+        level.known_tiles.extend(&self.visible)
     }
 }

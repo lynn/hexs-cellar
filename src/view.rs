@@ -34,7 +34,13 @@ fn cell(sprite: Sprite) -> Cell {
 pub fn draw_level(term: &mut Terminal, dungeon: &Dungeon, player: &Player) {
     let level = player.current_level(&dungeon);
     for position in grid::RECTANGLE {
-        let sprite = level.sprite_at(position, player);
+        let sprite =
+            if level.known_tiles.contains(&position) {
+                let visible = player.visible.contains(&position);
+                level.sprite_at(position, player).darken(!visible)
+            } else {
+                sprite::HIDDEN
+            };
         let Point(row, col) = position;
         term[(row as usize, col as usize)] = cell(sprite)
     }

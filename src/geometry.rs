@@ -27,6 +27,13 @@ impl Point {
     pub fn taxi_dist(self, other: Point) -> i32 {
         (self - other).taxi_norm()
     }
+    pub fn direction(self) -> Point {
+        let Point(x, y) = self;
+        Point(x.signum(), y.signum())
+    }
+    pub fn step_towards(self, other: Point) -> Point {
+        self + (other - self).direction()
+    }
 }
 
 impl Add for Point {
@@ -76,18 +83,22 @@ impl Sub for Point {
 pub struct Rectangle(pub Point, pub Point);
 
 impl Rectangle{
-    pub fn correct(self) -> Rectangle{
+    pub fn correct(self) -> Rectangle {
         let Rectangle(Point(x1, y1), Point(x2, y2)) = self;
         Rectangle(
             Point(min(x1, x2), min(y1, y2)),
             Point(max(x1, x2), max(y1, y2)) )
     }
 
-    pub fn grow(self, r: i32) -> Rectangle{
+    pub fn point(position: Point) -> Rectangle {
+        Rectangle(position, position)
+    }
+
+    pub fn grow(self, r: i32) -> Rectangle {
         Rectangle(self.0 - Point(r, r), self.1 + Point(r, r))
     }
 
-    pub fn shrink(self, r: i32) -> Rectangle{
+    pub fn shrink(self, r: i32) -> Rectangle {
         self.grow(-r)
     }
 
@@ -105,11 +116,23 @@ impl Rectangle{
         self.width() * self.height()
     }
 
-    pub fn contains(self, point: Point) -> bool {
+    pub fn contains(self, position: Point) -> bool {
         let Rectangle(Point(x1, y1), Point(x2, y2)) = self;
-        let Point(x, y) = point;
+        let Point(x, y) = position;
         // TODO: use inclusive range syntax syntax once stable
         x1 <= x && x <= x2 && y1 <= y && y <= y2
+    }
+
+    pub fn edges(self) -> Box<Iterator<Item=Point>> {
+        if self.width() <= 2 || self.height() <= 2 {
+            Box::new(self.into_iter())
+        } else {
+            let Rectangle(Point(x1, y1), Point(x2, y2)) = self;
+            Box::new(Rectangle(Point(x1, y1), Point(x2 - 1, y1)).into_iter()
+                .chain(Rectangle(Point(x2, y1), Point(x2, y2 - 1)).into_iter())
+                .chain(Rectangle(Point(x1 + 1, y1), Point(x2, y2)).into_iter())
+                .chain(Rectangle(Point(x1, y1 + 1), Point(x1, y1)).into_iter()))
+        }
     }
 }
 
