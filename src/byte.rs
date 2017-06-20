@@ -4,6 +4,20 @@ pub enum BitNumber {
 }
 
 impl BitNumber {
+    pub fn from_number(bn: i32) -> BitNumber {
+        match bn {
+            0 => BitNumber::Bit0,
+            1 => BitNumber::Bit1,
+            2 => BitNumber::Bit2,
+            3 => BitNumber::Bit3,
+            4 => BitNumber::Bit4,
+            5 => BitNumber::Bit5,
+            6 => BitNumber::Bit6,
+            7 => BitNumber::Bit7,
+            _ => panic!("BitNumber::from_number"),
+        }
+    }
+
     pub fn mask(self) -> u8 {
         match self {
             BitNumber::Bit0 => 0b00000001,

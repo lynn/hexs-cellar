@@ -11,6 +11,7 @@ use std::iter::Iterator;
 use std::iter::FromIterator;
 use rand;
 use rand::Rng;
+use byte::BitNumber;
 use grid;
 use grid::Grid;
 use item::{Item};
@@ -47,6 +48,7 @@ pub enum MapError {
     ShapeError(usize),    // funny map shape at given line
     TileError(usize, u8), // bad tile (u8) on given map (usize)
     StairError(usize),    // not enough stairs on given map
+    SwitchError(usize),   // not enough switches on given map (need 2)
     IoError(io::Error)
 }
 
@@ -55,11 +57,13 @@ impl fmt::Display for MapError {
         match *self {
             MapError::ShapeError(line) =>
                 write!(f, "map error: misshapen map at line {}", line),
-            MapError::TileError(whichmap, tile) =>
+            MapError::TileError(which_map, tile) =>
                 write!(f, "map error: unknown tile '{}' on map {}",
-                    tile as char, whichmap),
-            MapError::StairError(whichmap) =>
-                write!(f, "map error: not enough stairs on map {}", whichmap),
+                    tile as char, which_map),
+            MapError::StairError(which_map) =>
+                write!(f, "map error: not enough stairs on map {}", which_map),
+            MapError::SwitchError(which_map) =>
+                write!(f, "map error: not enough switches on map {}", which_map),
             MapError::IoError(ref e) => e.fmt(f)
         }
     }
@@ -92,8 +96,8 @@ pub fn build() -> Result<Dungeon, MapError> {
     }
 
     let mut maps: Vec<Grid<Tile>> = Vec::with_capacity(255);
-    for (whichmap, scheme) in (1..).zip(schemes.iter()) {
-        let mut map = build_map(whichmap, scheme)?;
+    for (which_map, scheme) in (1..).zip(schemes.iter()) {
+        let mut map = build_map(which_map, scheme)?;
         flip_randomly(&mut map);
         maps.push(map)
     }
@@ -144,51 +148,68 @@ fn read_map(linecount: &mut usize, lines: Lines) -> Result<Grid<u8>, MapError> {
     Ok(grid)
 }
 
-fn build_map(whichmap: usize, scheme: &Grid<u8>) -> Result<Grid<Tile>, MapError> {
+fn build_map(which_map: usize, scheme: &Grid<u8>) -> Result<Grid<Tile>, MapError> {
     let mut map = Grid::empty();
 
     // preliminary pass: figure out where to place stairs
-    let stairtotal = scheme.grid.iter().filter(|&&t| t == b'<').count();
-    if stairtotal < 2 {
-        return Err(MapError::StairError(whichmap))
+    let stair_count = scheme.grid.iter().filter(|&&t| t == b'<').count();
+    if stair_count < 2 {
+        return Err(MapError::StairError(which_map))
     }
-    let (upstairs, downstairs) = random_range_two(0..stairtotal);
+    let (upstairs, downstairs) = random_range_two(0..stair_count);
+
+    // same for switches
+    let switch_count = scheme.grid.iter().filter(|&&t| t == b'1').count();
+    if switch_count < 2 {
+        return Err(MapError::SwitchError(which_map))
+    }
+    let (switch1, switch2) = random_range_two(0..switch_count);
 
     // a HashMap to keep track of which tile (floor or wall) to use for
     // each letter A-Z in the map scheme (and the inverse for a-z)
-    let mut tilechoices: HashMap<u8, bool> = HashMap::new();
+    let mut tile_choices: HashMap<u8, bool> = HashMap::new();
 
-    let mut staircount = 0;
+    let mut stair_count = 0;
+    let mut switch_count = 0;
 
-    for &srctile in scheme.grid.iter() {
-        map.grid.push(match srctile {
+    for &byte in scheme.grid.iter() {
+        map.grid.push(match byte {
             b'.' => Tile::Floor,
             b'#' => Tile::Wall,
             b'+' => Tile::Door,
             b'<' => {
-                let tile = if staircount == upstairs {
+                let tile = if stair_count == upstairs {
                     Tile::StairsUp
-                } else if staircount == downstairs {
+                } else if stair_count == downstairs {
                     Tile::StairsDown
                 } else {
                     Tile::Floor
                 };
-                staircount += 1;
+                stair_count += 1;
+                tile
+            }
+            b'1' => {
+                let tile = if switch_count == switch1 || switch_count == switch2 {
+                    Tile::Switch(BitNumber::from_number(random_range(0..6)))
+                } else {
+                    Tile::Wall
+                };
+                switch_count += 1;
                 tile
             }
             b'A' ... b'Z' | b'a' ... b'z' => {
-                let normalized = srctile.to_ascii_uppercase();
-                let selection = *tilechoices.entry(normalized).or_insert_with(coin_flip);
+                let normalized = byte.to_ascii_uppercase();
+                let selection = *tile_choices.entry(normalized).or_insert_with(coin_flip);
                 // flip selection for lowercase letters
-                // TODO: use srctile.is_ascii_uppercase()
+                // TODO: use byte.is_ascii_uppercase()
                 // once ascii_ctype is stable
-                if selection == (srctile == normalized) {
+                if selection == (byte == normalized) {
                     Tile::Wall
                 } else {
                     Tile::Floor
                 }
             }
-            _ => return Err(MapError::TileError(whichmap, srctile))
+            _ => return Err(MapError::TileError(which_map, byte))
         })
     }
 
