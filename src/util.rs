@@ -8,10 +8,21 @@ pub fn coin_flip() -> bool {
 }
 
 // Sample `amount` values from an iterable using the thread RNG.
+// Order of sampled values will not be random.
 pub fn sample<T, I>(iterable: I, amount: usize) -> Vec<T>
     where I: IntoIterator<Item=T>
 {
     rand::sample(&mut thread_rng(), iterable, amount)
+}
+
+// Sample `amount` values from an iterable using the thread RNG.
+// Order of sampled values will be random.
+pub fn shuffle_sample<T, I>(iterable: I, amount: usize) -> Vec<T>
+    where I: IntoIterator<Item=T>
+{
+    let mut sample_vec = sample(iterable, amount);
+    thread_rng().shuffle(&mut sample_vec[..]);
+    sample_vec
 }
 
 // Pick a random value from an iterable using the thread RNG.
@@ -30,7 +41,7 @@ pub fn random_range<T: PartialOrd + SampleRange>(r: Range<T>) -> T {
 pub fn random_range_two<T: PartialOrd + SampleRange>(r: Range<T>) -> (T, T)
     where Range<T>: IntoIterator<Item = T>
 {
-    let mut s = sample(r, 2);
+    let mut s = shuffle_sample(r, 2);
     let b = s.remove(1);
     let a = s.remove(0);
     (a, b)
