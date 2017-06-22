@@ -5,6 +5,7 @@ use geometry::Point;
 use grid;
 use tile::Tile;
 use fov;
+use log::Log;
 
 pub struct Player {
     pub position: Point,
@@ -112,29 +113,34 @@ impl Player {
         }
     }
 
-    // try to walk in given direction
-    // TODO: return whether this consumes a turn, handle potential updates from
-    // flipping switches
-    pub fn step(&mut self, dungeon: &mut Dungeon, direction: Point) {
+    // try to walk in given direction.
+    // returns whether this consumes a turn
+    pub fn step(&mut self, log: &mut Log, dungeon: &mut Dungeon, direction: Point) -> bool {
         let mut level = self.current_level_mut(dungeon);
         let new_position = self.position + direction;
 
         // don't let the player step out of bounds
-        if !grid::RECTANGLE.contains(new_position) { return }
+        if !grid::RECTANGLE.contains(new_position) { return false }
 
         // TODO: check for monsters
         match level.tiles[new_position] {
-            Tile::Wall => {},
+            Tile::Wall => false,
             Tile::Floor | Tile::Doorway | Tile::StairsUp | Tile::StairsDown => {
                 self.position = new_position;
-                self.update_visibility(&mut level)
+                self.update_visibility(&mut level);
+                // TODO: look at floor
+                true
             },
             Tile::Door => {
                 level.tiles[new_position] = Tile::Doorway;
-                self.update_visibility(&mut level)
+                log.tell(String::from("You open the door."));
+                self.update_visibility(&mut level);
+                true
             },
             Tile::Switch(bn) => {
                 self.selected = byte::flip(self.selected, bn);
+                // TODO: log message for switch flip
+                true
             }
         }
     }

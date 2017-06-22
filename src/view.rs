@@ -7,6 +7,7 @@ use sprite::Sprite;
 use geometry::*;
 use util::pick;
 use world::World;
+use log::Log;
 
 
 fn cell(sprite: Sprite) -> Cell {
@@ -30,14 +31,25 @@ fn cell(sprite: Sprite) -> Cell {
     Cell::new(sprite.character, color, rustty::Color::Default, attr)
 }
 
+// TODO: write an actual dang view
+
 pub fn draw(term: &mut Terminal, world: &World) {
-    // TODO: replace this with rustty:ui stuff... actually TODO write an actual dang view
-    let level = world.player.current_level(&world.dungeon);
+    // draw border
+    // TODO: depend on terminal size; don't hardcode lengths/alignments
     let blue = Cell::new('#', rustty::Color::Blue, rustty::Color::Blue, Attr::Default);
     for position in grid::RECTANGLE.grow(1) {
         let Point(col, row) = position;
         term[((col + 30) as usize, (row + 4) as usize)] = blue;
     }
+
+    draw_board(term, &world);
+
+    draw_messages(term, &world.log)
+}
+
+fn draw_board(term: &mut Terminal, world: &World) {
+    // TODO: depend on terminal size; don't hardcode lengths/alignments
+    let level = world.player.current_level(&world.dungeon);
     for position in grid::RECTANGLE {
         let sprite =
             if level.known_tiles.contains(&position) {
@@ -49,5 +61,13 @@ pub fn draw(term: &mut Terminal, world: &World) {
         let Point(col, row) = position;
         term[((col + 30) as usize, (row + 4) as usize)] = cell(sprite)
     }
-    term.printline(30, 18, "q to quit");
+}
+
+fn draw_messages(term: &mut Terminal, log: &Log) {
+    // TODO: depend on terminal size; don't hardcode lengths/alignments;
+    //       visually group messages by turn (underscore separators? color?);
+    //       maybe group similar messages; add linewrapping if needed
+    for (i, &(_, ref message)) in log.recent_messages().iter().take(6).enumerate() {
+        term.printline(0, 23 - i, &message)
+    }
 }

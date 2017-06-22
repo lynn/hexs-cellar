@@ -11,6 +11,7 @@ mod fov;
 mod geometry;
 mod grid;
 mod item;
+mod log;
 mod monster;
 mod player;
 mod spell;
@@ -44,7 +45,10 @@ fn main() {
                 _ => {
                     // try movement commands
                     if let Some(step_direction) = key_to_direction(key) {
-                        world.player.step(&mut world.dungeon, step_direction)
+                        let took_turn = world.player.step(&mut world.log, &mut world.dungeon, step_direction);
+                        if took_turn {
+                            world.log.end_turn()
+                        }
                     }
                 }
             }

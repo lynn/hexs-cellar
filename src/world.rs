@@ -3,6 +3,8 @@ use item;
 use player::Player;
 use std;
 use std::io::Write;
+use log::Log;
+
 
 // represents the game world; gets passed around everywhere
 pub struct World {
@@ -13,6 +15,8 @@ pub struct World {
     pub player_appearance_byte: u8,
     pub door_appearance_byte: u8,
     pub wall_appearance_byte: u8,
+
+    pub log: Log
 }
 
 impl World {
@@ -30,6 +34,8 @@ impl World {
             player_appearance_byte: 0b11111111, // white @
             door_appearance_byte: 0b11001010, // brown +
             wall_appearance_byte: 0b01100010, // teal #
+
+            log: Log::new()
         }
     }
 }
