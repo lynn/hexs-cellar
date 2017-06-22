@@ -3,7 +3,7 @@ use byte;
 use dungeon::{Dungeon, Level};
 use geometry::Point;
 use grid;
-use tile::Tile;
+use tile::{Tile, Stairs};
 use fov;
 use log::Log;
 use util::a_or_an;
@@ -67,7 +67,7 @@ impl Player {
             show_ram: false,
             visible: HashSet::new()
         };
-        player.enter_level(log, dungeon, 1, Tile::StairsUp);
+        player.enter_level(log, dungeon, 1, Stairs::Up);
         player
     }
 
@@ -80,7 +80,7 @@ impl Player {
     }
 
     // enter a level: put the player on the appropriate stairs.
-    fn enter_level(&mut self, log: &mut Log, dungeon: &mut Dungeon, depth: u8, entry: Tile) {
+    fn enter_level(&mut self, log: &mut Log, dungeon: &mut Dungeon, depth: u8, entry: Stairs) {
         if depth == 0 {
             // TODO: special case for level 0
         } else {
@@ -89,7 +89,7 @@ impl Player {
             let mut level = self.current_level_mut(dungeon);
 
             for tile_position in grid::RECTANGLE {
-                if level.tiles[tile_position] == entry {
+                if level.tiles[tile_position] == Tile::Stairs(entry) {
                     self.position = tile_position;
                     break
                 }
@@ -100,17 +100,10 @@ impl Player {
         }
     }
 
-    // TODO: factor these better if they end up growing
-    pub fn try_stairs_up(&mut self, log: &mut Log, dungeon: &mut Dungeon) {
-        if self.current_level(dungeon).tiles[self.position] == Tile::StairsUp {
-            let new_depth = self.depth - 1;
-            self.enter_level(log, dungeon, new_depth, Tile::StairsDown)
-        }
-    }
-    pub fn try_stairs_down(&mut self, log: &mut Log, dungeon: &mut Dungeon) {
-        if self.current_level(dungeon).tiles[self.position] == Tile::StairsDown {
-            let new_depth = self.depth + 1;
-            self.enter_level(log, dungeon, new_depth, Tile::StairsUp)
+    pub fn try_stairs(&mut self, log: &mut Log, dungeon: &mut Dungeon, stairs: Stairs) {
+        if self.current_level(dungeon).tiles[self.position] == Tile::Stairs(stairs) {
+            let destination = stairs.destination(self);
+            self.enter_level(log, dungeon, destination, stairs.flip())
         }
     }
 
@@ -126,7 +119,7 @@ impl Player {
         // TODO: check for monsters
         match level.tiles[new_position] {
             Tile::Wall => false,
-            Tile::Floor | Tile::Doorway | Tile::StairsUp | Tile::StairsDown => {
+            Tile::Floor | Tile::Doorway | Tile::Stairs(_) => {
                 self.position = new_position;
                 self.update_visibility(&mut level);
                 self.look_at_floor(log, level);
@@ -156,16 +149,15 @@ impl Player {
             log.tell(format!("You see here {}.", a_or_an(item.name())));
         }
 
-        let tile = level.tiles[self.position];
-        if tile == Tile::StairsUp || tile == Tile::StairsDown {
-            let (direction, destination) = if tile == Tile::StairsUp {
-                ("up", self.depth - 1)
-            } else {
-                ("down", self.depth + 1)
+        if let Tile::Stairs(stairs) = level.tiles[self.position] {
+            let direction = match stairs {
+                Stairs::Up   => "up",
+                Stairs::Down => "down",
             };
+            let destination = stairs.destination(self);
 
             if destination == 0 {
-                log.tell(String::from("There is a staircase leading up out of the cellar here."))
+                log.tell(format!("There is a staircase leading {} out of the cellar here.", direction))
             } else {
                 log.tell(format!("There is a staircase {} to level {} here.", direction, destination))
             }

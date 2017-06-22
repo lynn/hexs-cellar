@@ -17,7 +17,7 @@ use grid;
 use grid::Grid;
 use item::{Item};
 use sprite::Sprite;
-use tile::{Tile};
+use tile::{Tile, Stairs};
 use util::{coin_flip, random_range, random_range_two, sample};
 use world::World;
 
@@ -179,9 +179,9 @@ fn build_map(which_map: usize, scheme: &Grid<u8>) -> Result<Grid<Tile>, MapError
             b'+' => Tile::Door,
             b'<' => {
                 let tile = if stair_count == upstairs {
-                    Tile::StairsUp
+                    Tile::Stairs(Stairs::Up)
                 } else if stair_count == downstairs {
-                    Tile::StairsDown
+                    Tile::Stairs(Stairs::Down)
                 } else {
                     Tile::Floor
                 };
