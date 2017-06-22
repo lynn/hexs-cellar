@@ -102,6 +102,10 @@ impl Player {
 
     pub fn try_stairs(&mut self, log: &mut Log, dungeon: &mut Dungeon, stairs: Stairs) {
         if self.current_level(dungeon).tiles[self.position] == Tile::Stairs(stairs) {
+            match stairs {
+                Stairs::Up   => log.tell(String::from("You go up the stairs.")),
+                Stairs::Down => log.tell(String::from("You go down the stairs."))
+            };
             let destination = stairs.destination(self);
             self.enter_level(log, dungeon, destination, stairs.flip())
         }
