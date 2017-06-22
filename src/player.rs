@@ -6,6 +6,7 @@ use grid;
 use tile::Tile;
 use fov;
 use log::Log;
+use util::a_or_an;
 
 pub struct Player {
     pub position: Point,
@@ -128,7 +129,7 @@ impl Player {
             Tile::Floor | Tile::Doorway | Tile::StairsUp | Tile::StairsDown => {
                 self.position = new_position;
                 self.update_visibility(&mut level);
-                // TODO: look at floor
+                self.look_at_floor(log, level);
                 true
             },
             Tile::Door => {
@@ -148,5 +149,11 @@ impl Player {
     fn update_visibility(&mut self, level: &mut Level) {
         self.visible = fov::calculate(level, self.position);
         level.known_tiles.extend(&self.visible)
+    }
+
+    fn look_at_floor(&self, log: &mut Log, level: &Level) {
+        if let Some(item) = level.items.get(&self.position) {
+            log.tell(format!("You see here {}.", a_or_an(item.name())));
+        }
     }
 }

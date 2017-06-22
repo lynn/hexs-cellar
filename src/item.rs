@@ -291,4 +291,8 @@ impl Item {
     pub fn sprite(&self) -> Sprite {
         self.appearance.sprite()
     }
+
+    pub fn name(&self) -> &'static str {
+        self.appearance.name()
+    }
 }

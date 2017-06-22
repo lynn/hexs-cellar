@@ -88,3 +88,22 @@ pub fn ordinal(n: i32) -> String {
     let i = if 10 <= n && n <= 19 {0} else {n % 10};
     n.to_string() + ["th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th"][i as usize]
 }
+
+pub fn a_or_an(s: &str) -> String {
+    match s.chars().nth(0) {
+        None => String::new(),
+        Some(c) => {
+            let article = match c {
+                'a' | 'e' | 'i' | 'o' | 'u' | 'A' | 'E' | 'I' | 'O' | 'U' =>
+                    // special case: "one" can be returned by punctuation_name
+                    if s == "one" {
+                        "a"
+                    } else {
+                        "an"
+                    },
+                _ => "a"
+            };
+            format!("{} {}", article, s)
+        }
+    }
+}
