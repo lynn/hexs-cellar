@@ -36,8 +36,8 @@ fn main() {
         if let Some(Event::Key(key)) = terminal.get_event(Duration::from_secs(99999)).unwrap() {
             match key {
                 'q' => break,
-                '<' => world.player.try_stairs_up(&mut world.dungeon),
-                '>' => world.player.try_stairs_down(&mut world.dungeon),
+                '<' => world.player.try_stairs_up(&mut world.log, &mut world.dungeon),
+                '>' => world.player.try_stairs_down(&mut world.log, &mut world.dungeon),
                 '\x1b' => {
                     // eat escape sequences
                     while terminal.get_event(Duration::from_millis(1)).unwrap().is_some() {

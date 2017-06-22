@@ -45,7 +45,7 @@ pub struct Player {
 
 impl Player {
     // enters first level automatically
-    pub fn new(dungeon: &mut Dungeon) -> Player {
+    pub fn new(log: &mut Log, dungeon: &mut Dungeon) -> Player {
         let mut player = Player {
             position: Point(-1, -1),
             depth: 1,
@@ -67,7 +67,7 @@ impl Player {
             show_ram: false,
             visible: HashSet::new()
         };
-        player.enter_level(dungeon, 1, Tile::StairsUp);
+        player.enter_level(log, dungeon, 1, Tile::StairsUp);
         player
     }
 
@@ -80,7 +80,7 @@ impl Player {
     }
 
     // enter a level: put the player on the appropriate stairs.
-    fn enter_level(&mut self, dungeon: &mut Dungeon, depth: u8, entry: Tile) {
+    fn enter_level(&mut self, log: &mut Log, dungeon: &mut Dungeon, depth: u8, entry: Tile) {
         if depth == 0 {
             // TODO: special case for level 0
         } else {
@@ -95,22 +95,22 @@ impl Player {
                 }
             }
 
-            self.update_visibility(&mut level)
+            self.update_visibility(&mut level);
+            self.look_at_floor(log, level)
         }
-
     }
 
     // TODO: factor these better if they end up growing
-    pub fn try_stairs_up(&mut self, dungeon: &mut Dungeon) {
+    pub fn try_stairs_up(&mut self, log: &mut Log, dungeon: &mut Dungeon) {
         if self.current_level(dungeon).tiles[self.position] == Tile::StairsUp {
             let new_depth = self.depth - 1;
-            self.enter_level(dungeon, new_depth, Tile::StairsDown)
+            self.enter_level(log, dungeon, new_depth, Tile::StairsDown)
         }
     }
-    pub fn try_stairs_down(&mut self, dungeon: &mut Dungeon) {
+    pub fn try_stairs_down(&mut self, log: &mut Log, dungeon: &mut Dungeon) {
         if self.current_level(dungeon).tiles[self.position] == Tile::StairsDown {
             let new_depth = self.depth + 1;
-            self.enter_level(dungeon, new_depth, Tile::StairsUp)
+            self.enter_level(log, dungeon, new_depth, Tile::StairsUp)
         }
     }
 
@@ -154,6 +154,21 @@ impl Player {
     fn look_at_floor(&self, log: &mut Log, level: &Level) {
         if let Some(item) = level.items.get(&self.position) {
             log.tell(format!("You see here {}.", a_or_an(item.name())));
+        }
+
+        let tile = level.tiles[self.position];
+        if tile == Tile::StairsUp || tile == Tile::StairsDown {
+            let (direction, destination) = if tile == Tile::StairsUp {
+                ("up", self.depth - 1)
+            } else {
+                ("down", self.depth + 1)
+            };
+
+            if destination == 0 {
+                log.tell(String::from("There is a staircase leading up out of the cellar here."))
+            } else {
+                log.tell(format!("There is a staircase {} to level {} here.", direction, destination))
+            }
         }
     }
 }

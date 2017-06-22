@@ -26,8 +26,10 @@ impl World {
             std::process::exit(1)
         });
 
+        let mut log = Log::new();
+
         World {
-            player: Player::new(&mut dungeon),
+            player: Player::new(&mut log, &mut dungeon),
             dungeon: dungeon,
             item_appearance_map: item::random_appearance_map(),
 
@@ -35,7 +37,7 @@ impl World {
             door_appearance_byte: 0b11001010, // brown +
             wall_appearance_byte: 0b01100010, // teal #
 
-            log: Log::new()
+            log: log
         }
     }
 }
