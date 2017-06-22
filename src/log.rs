@@ -1,7 +1,8 @@
 use std::collections::VecDeque;
+use std::borrow::Cow;
 
 // label messages by turn so they can be grouped
-pub type Message = (usize, String);
+pub type Message = (usize, Cow<'static, str>);
 
 const MESSAGE_BUFFER_SIZE: usize = 512;
 
@@ -23,12 +24,13 @@ impl Log {
         &self.messages
     }
 
-    pub fn tell(&mut self, message: String) {
+    // this trait bound allows us to pass in both &'static str and String
+    pub fn tell<S>(&mut self, message: S) where S: Into<Cow<'static, str>> {
         while self.messages.len() >= MESSAGE_BUFFER_SIZE {
             self.messages.pop_back();
         }
 
-        self.messages.push_front((self.turn_count, message))
+        self.messages.push_front((self.turn_count, message.into()))
     }
 
     pub fn end_turn(&mut self) {

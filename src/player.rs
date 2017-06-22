@@ -67,6 +67,7 @@ impl Player {
             show_ram: false,
             visible: HashSet::new()
         };
+        log.tell("Put some cute introductory flavor here!");
         player.enter_level(log, dungeon, 1, Stairs::Up);
         player
     }
@@ -103,8 +104,8 @@ impl Player {
     pub fn try_stairs(&mut self, log: &mut Log, dungeon: &mut Dungeon, stairs: Stairs) {
         if self.current_level(dungeon).tiles[self.position] == Tile::Stairs(stairs) {
             match stairs {
-                Stairs::Up   => log.tell(String::from("You go up the stairs.")),
-                Stairs::Down => log.tell(String::from("You go down the stairs."))
+                Stairs::Up   => log.tell("You go up the stairs."),
+                Stairs::Down => log.tell("You go down the stairs.")
             };
             let destination = stairs.destination(self);
             self.enter_level(log, dungeon, destination, stairs.flip())
@@ -131,7 +132,7 @@ impl Player {
             },
             Tile::Door => {
                 level.tiles[new_position] = Tile::Doorway;
-                log.tell(String::from("You open the door."));
+                log.tell("You open the door.");
                 self.update_visibility(&mut level);
                 true
             },
