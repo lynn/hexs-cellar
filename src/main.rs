@@ -30,6 +30,7 @@ fn main() {
     let mut terminal = Terminal::new().unwrap();
 
     loop {
+        terminal.clear().unwrap(); // clear back-buffer and notice terminal resize
         view::draw(&mut terminal, &world);
         terminal.swap_buffers().unwrap();
         if let Some(Event::Key(key)) = terminal.get_event(Duration::from_secs(99999)).unwrap() {
