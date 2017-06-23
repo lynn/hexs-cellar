@@ -36,4 +36,8 @@ impl Log {
     pub fn end_turn(&mut self) {
         self.turn_count += 1
     }
+
+    pub fn extend_message(&mut self, extension: &str) {
+        self.messages[0].1.to_mut().push_str(extension)
+    }
 }

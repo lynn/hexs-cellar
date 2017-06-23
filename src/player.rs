@@ -1,5 +1,6 @@
 use std::collections::HashSet;
 use byte;
+use byte::BitNumber;
 use dungeon::{Dungeon, Level};
 use geometry::Point;
 use grid;
@@ -7,7 +8,7 @@ use tile::{Tile, Stairs};
 use fov;
 use log::Log;
 use util::a_or_an;
-use item::InventorySlot;
+use item::{Inventory, InventorySlot};
 
 pub struct Player {
     pub position: Point,
@@ -22,7 +23,7 @@ pub struct Player {
     pub aptitude: [i8; 4],
 
     // Index with byte::BitNumber.
-    pub inventory: [InventorySlot; 8],
+    pub inventory: Inventory,
 
     // Index with byte::BitNumber.
     pub spell_memory: [bool; 8],
@@ -57,7 +58,7 @@ impl Player {
             xl: 1,
             def: 0,
             aptitude: [0, 0, 0, 0],
-            inventory: [InventorySlot::empty(); 8],
+            inventory: Inventory::empty(),
             spell_memory: [false; 8],
             timer: [0; 4],
             selected: 0x00,
@@ -168,5 +169,88 @@ impl Player {
                 log.tell(format!("There is a staircase {} to level {} here.", direction, destination))
             }
         }
+    }
+
+
+    // try to pick up an item from the floor; returns if a turn was consumed
+    pub fn pick_up_item(&mut self, log: &mut Log, dungeon: &mut Dungeon) -> bool {
+        use std::collections::hash_map::Entry::*;
+
+        let mut level = self.current_level_mut(dungeon);
+
+        if let Occupied(floor_item) = level.items.entry(self.position) {
+            let item = *floor_item.get();
+            if self.inventory.insert(item) {
+                floor_item.remove();
+                log.tell(format!("You pick up the {}.", item.name()));
+                true
+            } else {
+                log.tell("Your inventory is full!");
+                false
+            }
+        } else {
+            log.tell("There is no item here.");
+            false
+        }
+    }
+
+    // try to drop an item to the floor; returns if a turn was consumed
+    pub fn drop_item(&mut self, log: &mut Log,
+        dungeon: &mut Dungeon, index: BitNumber) -> bool
+    {
+        use rand::Rng;
+        use rand::thread_rng;
+        use std::collections::hash_map::Entry::*;
+
+        // TODO: special handling for equipped items?
+        let slot = self.inventory.slots[index as usize];
+        let item = match slot.get_item() {
+            Some(item) => {
+                if slot.is_cursed() {
+                    log.tell(format!("You can't drop the cursed {}!", item.name()));
+                    return false
+                } else {
+                    item
+                }
+            },
+            None => {
+                log.tell("You don't have that item!");
+                return false
+            }
+        };
+
+        let mut level = self.current_level_mut(dungeon);
+
+        // find a nearby floor tile to put the item on.
+        // this allows for items to spill over a single tile for convenience,
+        // but not travel long distances or leave the player's field of view.
+        // we first prefer the player's current tile, then tiles one step away
+        // in an orthogonal direction, then finally diagonal directions
+        let mut directions = [
+            Point(0, 0),
+            Point(0, 1), Point(1, 0),  Point(0, -1), Point(-1, 0),
+            Point(1, 1), Point(-1, 1), Point(1, -1), Point(-1, -1)
+        ];
+        thread_rng().shuffle(&mut directions[1..5]);
+        thread_rng().shuffle(&mut directions[5..9]);
+
+        for &direction in directions.iter() {
+            let position = self.position + direction;
+
+            let tile = level.tiles[position];
+
+            if tile == Tile::Floor || tile == Tile::Doorway {
+                if let Vacant(floor) = level.items.entry(position) {
+                    self.inventory.slots[index as usize] = InventorySlot::empty();
+                    log.tell(format!("You drop the {}.", item.name()));
+                    floor.insert(item);
+                    return true
+                }
+            }
+        }
+
+        // nowhere nearby to place item
+        log.tell("No room on floor!");
+        false
     }
 }

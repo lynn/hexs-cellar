@@ -293,8 +293,12 @@ impl InventorySlot {
         }
     }
 
+    pub fn is_empty(self) -> bool {
+        self.byte & APPEARANCE_MASK == 0
+    }
+
     pub fn get_item(self) -> Option<Item> {
-        if self.byte & APPEARANCE_MASK == 0 {
+        if self.is_empty() {
             None
         } else {
             Some(Item {
@@ -323,5 +327,29 @@ impl InventorySlot {
 
     pub fn unequip(self) -> InventorySlot {
         InventorySlot { byte: self.byte & !EQUIP_MASK }
+    }
+}
+
+
+pub struct Inventory {
+    pub slots: [InventorySlot; 8]
+}
+
+impl Inventory {
+    pub fn empty() -> Inventory {
+        Inventory { slots: [InventorySlot::empty(); 8] }
+    }
+
+    // try to insert an item into the inventory using the first available slot;
+    // fails if there are no uncursed empty slots
+    pub fn insert(&mut self, item: Item) -> bool {
+        for slot in self.slots.iter_mut() {
+            if slot.is_empty() && !slot.is_cursed() {
+                // note: intentionally clears `equipped` bit
+                *slot = InventorySlot::filled(item);
+                return true
+            }
+        }
+        false
     }
 }
