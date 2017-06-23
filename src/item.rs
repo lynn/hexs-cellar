@@ -241,47 +241,22 @@ pub fn random_appearance_map() -> AppearanceMap {
     ]
 }
 
+#[derive(Clone, Copy)]
 pub struct Item {
     // 5 high bits
     appearance: Appearance,
 
     // 3 low bits
     enchanted: bool,
-    equipped: bool,
+    // equipped: bool, -- property of InventorySlot
     cursed: bool,
 }
 
 impl Item {
-/*
-    // An inventory byte with its five high bits cleared represents an
-    // empty inventory slot; `from_byte` returns None for such bytes.
-    pub fn from_byte(byte: u8, appearance_map: &AppearanceMap) -> Option<Item> {
-        appearance_map[byte as usize >> 3].map(|kind| Item {
-            kind: kind,
-            enchanted: byte & 0b100 > 0,
-            equipped: byte & 0b010 > 0,
-            cursed: byte & 0b001 > 0,
-        })
-    }
-
-    pub fn to_byte(&self, appearance_map: &AppearanceMap) -> u8 {
-        for n in 0..19 {
-            if appearance_map[n] == Some(self.kind) {
-                return (n << 3) as u8
-                    + (if self.enchanted {0b100} else {0})
-                    + (if self.equipped {0b010} else {0})
-                    + (if self.cursed {0b001} else {0});
-            }
-        }
-        panic!("Invalid AppearanceMap!");
-    }
-*/
-
     pub fn spawn() -> Item {
         Item {
             appearance: Appearance::from_byte(random_range(0x01..0x20)),
             enchanted: coin_flip(),
-            equipped: coin_flip(),
             cursed: coin_flip(),
         }
     }
@@ -292,5 +267,61 @@ impl Item {
 
     pub fn name(&self) -> &'static str {
         self.appearance.name()
+    }
+}
+
+#[derive(Copy, Clone)]
+pub struct InventorySlot {
+    pub byte: u8
+}
+
+const APPEARANCE_MASK: u8 = 0b11111000;
+const ENCHANT_MASK: u8    = 0b00000100;
+const EQUIP_MASK: u8      = 0b00000010;
+const CURSE_MASK: u8      = 0b00000001;
+
+impl InventorySlot {
+    pub fn empty() -> InventorySlot {
+        InventorySlot { byte: 0 }
+    }
+
+    pub fn filled(item: Item) -> InventorySlot {
+        InventorySlot {
+            byte: ((item.appearance as u8) << 3)
+                | (if item.enchanted {ENCHANT_MASK} else {0})
+                | (if item.cursed    {CURSE_MASK}   else {0})
+        }
+    }
+
+    pub fn get_item(self) -> Option<Item> {
+        if self.byte & APPEARANCE_MASK == 0 {
+            None
+        } else {
+            Some(Item {
+                appearance: Appearance::from_byte((self.byte & APPEARANCE_MASK) >> 3),
+                enchanted:  self.byte & ENCHANT_MASK != 0,
+                cursed:     self.byte & CURSE_MASK != 0
+            })
+        }
+    }
+
+    pub fn is_cursed(self) -> bool {
+        self.byte & CURSE_MASK != 0
+    }
+
+    pub fn is_enchanted(self) -> bool {
+        self.byte & ENCHANT_MASK != 0
+    }
+
+    pub fn is_equipped(self) -> bool {
+        self.byte & EQUIP_MASK != 0
+    }
+
+    pub fn equip(self) -> InventorySlot {
+        InventorySlot { byte: self.byte | EQUIP_MASK }
+    }
+
+    pub fn unequip(self) -> InventorySlot {
+        InventorySlot { byte: self.byte & !EQUIP_MASK }
     }
 }

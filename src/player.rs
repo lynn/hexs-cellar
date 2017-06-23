@@ -7,6 +7,7 @@ use tile::{Tile, Stairs};
 use fov;
 use log::Log;
 use util::a_or_an;
+use item::InventorySlot;
 
 pub struct Player {
     pub position: Point,
@@ -20,8 +21,8 @@ pub struct Player {
     // Index with element::Element.
     pub aptitude: [i8; 4],
 
-    // Must be represented as bytes!
-    pub inventory: [u8; 8],
+    // Index with byte::BitNumber.
+    pub inventory: [InventorySlot; 8],
 
     // Index with byte::BitNumber.
     pub spell_memory: [bool; 8],
@@ -56,7 +57,7 @@ impl Player {
             xl: 1,
             def: 0,
             aptitude: [0, 0, 0, 0],
-            inventory: [0, 0, 0, 0, 0, 0, 0, 0],
+            inventory: [InventorySlot::empty(); 8],
             spell_memory: [false; 8],
             timer: [0; 4],
             selected: 0x00,
