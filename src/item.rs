@@ -5,7 +5,6 @@ use util::{coin_flip, random_range};
 
 #[derive(Copy, Clone)]
 pub enum Appearance {
-    NoItem = 0x00,
     Crowbar = 0x01,
     VolcanicShard = 0x02,
     Taser = 0x03,
@@ -82,7 +81,7 @@ impl Appearance {
             0x1d => BlueDevice,
             0x1e => Palantir,
             0x1f => GoldenPendant,
-            _ => NoItem,
+            _    => panic!("Item::Appearance::from_byte - invalid argument")
         }
     }
 }
@@ -100,8 +99,7 @@ const NECKLACE_CHAR: char = '"';
 const DEVICE_CHAR: char = '&';
 const ARTIFACT_CHAR: char = '$';
 
-const APPEARANCE_INFOS: [AppearanceInfo; 32] = [
-    AppearanceInfo {name: "(no item)",         sprite: Sprite {character: '?',           color: GLITCH}},
+const APPEARANCE_INFOS: [AppearanceInfo; 31] = [
     AppearanceInfo {name: "crowbar",           sprite: Sprite {character: WEAPON_CHAR,   color: TEAL}},
     AppearanceInfo {name: "volcanic shard",    sprite: Sprite {character: WEAPON_CHAR,   color: MAROON}},
     AppearanceInfo {name: "taser",             sprite: Sprite {character: WEAPON_CHAR,   color: AQUA}},
@@ -138,11 +136,11 @@ const APPEARANCE_INFOS: [AppearanceInfo; 32] = [
 impl Appearance {
     // Unidentified item names.
     pub fn name(self) -> &'static str {
-        APPEARANCE_INFOS[self as usize].name
+        APPEARANCE_INFOS[self as usize - 1].name
     }
 
     pub fn sprite(self) -> Sprite {
-        APPEARANCE_INFOS[self as usize].sprite
+        APPEARANCE_INFOS[self as usize - 1].sprite
     }
 }
 
@@ -182,7 +180,7 @@ pub enum Kind {
 }
 
 // A map from Appearances (0x00 through 0x1f) to Kinds.
-// NoItem is mapped to None; other items are mapped to Some<Kind>.
+// 0x00 is mapped to None; items are mapped to Some<Kind>.
 pub type AppearanceMap = [Option<Kind>; 0x20];
 
 // Make a random appearance map by shuffling the unidentified fruits, pills, and devices.
@@ -281,7 +279,7 @@ impl Item {
 
     pub fn spawn() -> Item {
         Item {
-            appearance: Appearance::from_byte(random_range(0x00..0x20)),
+            appearance: Appearance::from_byte(random_range(0x01..0x20)),
             enchanted: coin_flip(),
             equipped: coin_flip(),
             cursed: coin_flip(),
