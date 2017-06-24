@@ -94,14 +94,16 @@ fn draw_board(term: &Window, world: &World) {
 fn draw_border(term: &Window, world: &World) {
     // TODO: depend on terminal size; don't hardcode lengths/alignments
 
-    let border = cell(Sprite {
+    let border = Sprite {
         character: ' ',
         color: Tile::Wall.sprite(world).color
-    }) | pancurses::chtype::from(Attribute::Reverse);
+    };
 
     for position in grid::RECTANGLE.grow(1) {
         let Point(col, row) = position;
-        term.mvaddch(row + 4, col + 30, border);
+        term.mvaddch(row + 4, col + 30,
+            cell(border.darken(!world.player.visible.contains(&position)))
+                | pancurses::chtype::from(Attribute::Reverse));
     }
 }
 
