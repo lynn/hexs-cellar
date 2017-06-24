@@ -8,6 +8,7 @@ use util::pick;
 use world::World;
 use log::Log;
 use item::Inventory;
+use tile::Tile;
 
 
 fn color(color: Color) -> Attributes {
@@ -50,9 +51,6 @@ pub fn initialize() -> Window {
     pancurses::init_pair(6, pancurses::COLOR_YELLOW,  pancurses::COLOR_BLACK);
     pancurses::init_pair(7, pancurses::COLOR_BLACK,   pancurses::COLOR_BLACK);
 
-    // NOTE: only used for drawing border; remove if we end up not needing this
-    pancurses::init_pair(8, pancurses::COLOR_BLUE, pancurses::COLOR_BLUE);
-
     terminal
 }
 
@@ -60,14 +58,6 @@ pub fn initialize() -> Window {
 
 pub fn draw(term: &Window, world: &World) {
     term.erase(); // clear back-buffer
-
-    // draw border (NOTE: remove color pair 8 if we remove this)
-    // TODO: depend on terminal size; don't hardcode lengths/alignments
-    let blue = '#'.to_chtype() | pancurses::chtype::from(ColorPair(8));
-    for position in grid::RECTANGLE.grow(1) {
-        let Point(col, row) = position;
-        term.mvaddch(row + 4, col + 30, blue);
-    }
 
     draw_inventory(term, &world.player.inventory);
 
@@ -81,6 +71,9 @@ pub fn draw(term: &Window, world: &World) {
 fn draw_board(term: &Window, world: &World) {
     // TODO: depend on terminal size; don't hardcode lengths/alignments
     term.attrset(Attributes::new());
+
+    draw_border(term, world);
+
     let level = world.player.current_level(&world.dungeon);
     for row in 0..grid::HEIGHT as i32 {
         term.mv(row + 4, 30);
@@ -95,6 +88,20 @@ fn draw_board(term: &Window, world: &World) {
                 };
             term.addch(cell(sprite));
         }
+    }
+}
+
+fn draw_border(term: &Window, world: &World) {
+    // TODO: depend on terminal size; don't hardcode lengths/alignments
+
+    let border = cell(Sprite {
+        character: ' ',
+        color: Tile::Wall.sprite(world).color
+    }) | pancurses::chtype::from(Attribute::Reverse);
+
+    for position in grid::RECTANGLE.grow(1) {
+        let Point(col, row) = position;
+        term.mvaddch(row + 4, col + 30, border);
     }
 }
 
