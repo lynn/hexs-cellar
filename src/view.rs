@@ -2,33 +2,36 @@ use grid;
 use pancurses;
 use pancurses::{Window, Attribute, Attributes, ColorPair, ToChtype};
 use sprite;
-use sprite::Sprite;
+use sprite::{Sprite, Color};
 use geometry::*;
 use util::pick;
 use world::World;
 use log::Log;
+use item::Inventory;
 
+
+fn color(color: Color) -> Attributes {
+    match color {
+        Color::Navy   => (Attributes::new() | ColorPair(1)),
+        Color::Green  => (Attributes::new() | ColorPair(2)),
+        Color::Teal   => (Attributes::new() | ColorPair(3)),
+        Color::Maroon => (Attributes::new() | ColorPair(4)),
+        Color::Purple => (Attributes::new() | ColorPair(5)),
+        Color::Brown  => (Attributes::new() | ColorPair(6)),
+        Color::Gray   => (Attributes::new() | ColorPair(0)),
+        Color::Dark   => (Attribute::Bold   | ColorPair(7)),
+        Color::Blue   => (Attribute::Bold   | ColorPair(1)),
+        Color::Lime   => (Attribute::Bold   | ColorPair(2)),
+        Color::Aqua   => (Attribute::Bold   | ColorPair(3)),
+        Color::Red    => (Attribute::Bold   | ColorPair(4)),
+        Color::Pink   => (Attribute::Bold   | ColorPair(5)),
+        Color::Yellow => (Attribute::Bold   | ColorPair(6)),
+        Color::White  => (Attribute::Bold   | ColorPair(0)),
+    }
+}
 
 fn cell(sprite: Sprite) -> pancurses::chtype {
-    let attributes = match *pick(sprite.color) {
-        sprite::Color::Navy   => (Attributes::new() | ColorPair(1)),
-        sprite::Color::Green  => (Attributes::new() | ColorPair(2)),
-        sprite::Color::Teal   => (Attributes::new() | ColorPair(3)),
-        sprite::Color::Maroon => (Attributes::new() | ColorPair(4)),
-        sprite::Color::Purple => (Attributes::new() | ColorPair(5)),
-        sprite::Color::Brown  => (Attributes::new() | ColorPair(6)),
-        sprite::Color::Gray   => (Attributes::new() | ColorPair(0)),
-        sprite::Color::Dark   => (Attribute::Bold   | ColorPair(7)),
-        sprite::Color::Blue   => (Attribute::Bold   | ColorPair(1)),
-        sprite::Color::Lime   => (Attribute::Bold   | ColorPair(2)),
-        sprite::Color::Aqua   => (Attribute::Bold   | ColorPair(3)),
-        sprite::Color::Red    => (Attribute::Bold   | ColorPair(4)),
-        sprite::Color::Pink   => (Attribute::Bold   | ColorPair(5)),
-        sprite::Color::Yellow => (Attribute::Bold   | ColorPair(6)),
-        sprite::Color::White  => (Attribute::Bold   | ColorPair(0)),
-    };
-
-    sprite.character.to_chtype() | pancurses::chtype::from(attributes)
+    sprite.character.to_chtype() | pancurses::chtype::from(color(*pick(sprite.color)))
 }
 
 pub fn initialize() -> Window {
@@ -66,6 +69,8 @@ pub fn draw(term: &Window, world: &World) {
         term.mvaddch(row + 4, col + 30, blue);
     }
 
+    draw_inventory(term, &world.player.inventory);
+
     draw_board(term, &world);
 
     draw_messages(term, &world.log);
@@ -75,6 +80,7 @@ pub fn draw(term: &Window, world: &World) {
 
 fn draw_board(term: &Window, world: &World) {
     // TODO: depend on terminal size; don't hardcode lengths/alignments
+    term.attrset(Attributes::new());
     let level = world.player.current_level(&world.dungeon);
     for row in 0..grid::HEIGHT as i32 {
         term.mv(row + 4, 30);
@@ -96,7 +102,50 @@ fn draw_messages(term: &Window, log: &Log) {
     // TODO: depend on terminal size; don't hardcode lengths/alignments;
     //       visually group messages by turn (underscore separators? color?);
     //       maybe group similar messages; add linewrapping if needed
+    term.attrset(Attributes::new());
     for (i, &(_, ref message)) in log.recent_messages().iter().take(6).enumerate() {
         term.mvaddstr(23 - i as i32, 0, &message);
+    }
+}
+
+fn draw_inventory(term: &Window, inventory: &Inventory) {
+    // TODO: depend on terminal size; don't hardcode lengths/alignments
+    // TODO: abbreviate long inventory slot descriptions
+    for (index, slot) in inventory.slots.iter().enumerate() {
+        let index_color = if !slot.is_empty() {
+            Color::Blue
+        } else {
+            Color::Dark
+        };
+        term.attrset(color(index_color));
+        term.mvaddstr(index as i32 + 4, 0, &(index+1).to_string());
+
+        let text_color = if slot.is_cursed() {
+            if slot.is_equipped() {Color::Red} else {Color::Maroon}
+        } else if !slot.is_empty() {
+            if slot.is_equipped() {Color::White} else {Color::Gray}
+        } else {
+            Color::Dark
+        };
+        term.attrset(color(text_color));
+
+        if slot.is_cursed() {
+            term.addstr(" cursed");
+        }
+
+        if slot.is_enchanted() {
+            term.addstr(" enchanted");
+        }
+
+        term.addch(' ');
+        let name = match slot.get_item() {
+            Some(item) => item.name(),
+            None => "nothing"
+        };
+        term.addstr(name);
+
+        if slot.is_equipped() {
+            term.addstr("(equipped)");
+        }
     }
 }
