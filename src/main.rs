@@ -1,8 +1,8 @@
 #![allow(dead_code)]
 extern crate rand;
-extern crate rustty;
-use rustty::{Event, Terminal};
-use std::time::Duration;
+extern crate pancurses;
+
+use pancurses::{Window, Input};
 
 mod addr;
 mod byte;
@@ -29,36 +29,49 @@ use byte::BitNumber;
 
 fn main() {
     let mut world = World::new();
-    let mut terminal = Terminal::new().unwrap();
+
+    let terminal = view::initialize();
 
     loop {
-        terminal.clear().unwrap(); // clear back-buffer and notice terminal resize
-        view::draw(&mut terminal, &world);
-        terminal.swap_buffers().unwrap();
-        if let Some(Event::Key(key)) = terminal.get_event(Duration::from_secs(99999)).unwrap() {
-            let took_turn = match key {
-                'q' => break,
-                '<' => { world.player.try_stairs(&mut world.log, &mut world.dungeon, Stairs::Up); false },
-                '>' => { world.player.try_stairs(&mut world.log, &mut world.dungeon, Stairs::Down); false },
-                '\x1b' => { eat_escape_sequence(&mut terminal); continue }
-                ',' | 'g' => world.player.pick_up_item(&mut world.log, &mut world.dungeon),
-                'd' => match item_prompt(&mut terminal, &mut world, "Drop") {
-                    Some(index) => world.player.drop_item(&mut world.log, &mut world.dungeon, index),
-                    None => false
-                },
-                _ => {
-                    // try movement commands
-                    if let Some(step_direction) = key_to_direction(key) {
-                        world.player.step(&mut world.log, &mut world.dungeon, step_direction)
-                    } else {
-                        false
-                    }
-                }
-            };
+        view::draw(&terminal, &world);
 
-            if took_turn {
-                world.log.end_turn()
+        let took_turn = match get_key(&terminal, &world) {
+            'q' => break,
+            '<' => { world.player.try_stairs(&mut world.log, &mut world.dungeon, Stairs::Up); false },
+            '>' => { world.player.try_stairs(&mut world.log, &mut world.dungeon, Stairs::Down); false },
+            ',' | 'g' => world.player.pick_up_item(&mut world.log, &mut world.dungeon),
+            'd' => match item_prompt(&terminal, &mut world, "Drop") {
+                Some(index) => world.player.drop_item(&mut world.log, &mut world.dungeon, index),
+                None => false
+            },
+            key => {
+                // try movement commands
+                if let Some(step_direction) = key_to_direction(key) {
+                    world.player.step(&mut world.log, &mut world.dungeon, step_direction)
+                } else {
+                    false
+                }
             }
+        };
+
+        if took_turn {
+            world.log.end_turn()
+        }
+    };
+
+    pancurses::endwin();
+}
+
+// get a key and handle window resize events
+fn get_key(terminal: &Window, world: &World) -> char {
+    loop {
+        match terminal.getch() {
+            Some(Input::Character(c)) => return c,
+            Some(Input::KeyResize) => {
+                terminal.clearok(true);
+                view::draw(terminal, world);
+            }
+            _ => {}
         }
     }
 }
@@ -78,12 +91,12 @@ fn key_to_direction(key: char) -> Option<Point> {
     }
 }
 
-fn item_prompt(terminal: &mut Terminal, world: &mut World, verb: &str) -> Option<BitNumber>
+fn item_prompt(terminal: &Window, world: &mut World, verb: &str) -> Option<BitNumber>
 {
     item_prompt_rec(terminal, world, format!("{} which item?", verb), false)
 }
 
-fn item_prompt_rec(terminal: &mut Terminal, world: &mut World,
+fn item_prompt_rec(terminal: &Window, world: &mut World,
     prompt: String, explained: bool) -> Option<BitNumber>
 {
     use BitNumber::*;
@@ -108,33 +121,19 @@ fn item_prompt_rec(terminal: &mut Terminal, world: &mut World,
     })
 }
 
-fn char_prompt(terminal: &mut Terminal, world: &mut World, prompt: &str) -> Option<char> {
+fn char_prompt(terminal: &Window, world: &mut World, prompt: &str) -> Option<char> {
     world.log.tell(String::from(prompt));
-    loop {
-        terminal.clear().unwrap();
-        view::draw(terminal, world);
-        terminal.swap_buffers().unwrap();
-        if let Some(Event::Key(key)) = terminal.get_event(Duration::from_secs(99999)).unwrap() {
-            if key == '\x1b' {
-                if eat_escape_sequent(terminal) {
-                    eat_escape_sequence(terminal)
-                } else {
-                    // quit out of prompt on single escape press.
-                    world.log.extend_message("Okay, then.");
-                    return None
-                }
-            } else {
-                world.log.extend_message(&format!(" {}", key));
-                return Some(key)
-            }
+    view::draw(terminal, world);
+
+    match get_key(terminal, world) {
+        '\x1b' => {
+            // escape key -- quit out of prompt
+            world.log.extend_message(" Okay, then.");
+            return None
+        },
+        key => {
+            world.log.extend_message(&format!(" {}", key));
+            return Some(key)
         }
     }
-}
-
-fn eat_escape_sequent(terminal: &mut Terminal) -> bool {
-    terminal.get_event(Duration::from_millis(1)).unwrap().is_some()
-}
-
-fn eat_escape_sequence(terminal: &mut Terminal) {
-    while eat_escape_sequent(terminal) {}
 }
