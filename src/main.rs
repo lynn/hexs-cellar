@@ -4,7 +4,6 @@ extern crate pancurses;
 
 use pancurses::{Window, Input};
 
-mod addr;
 mod byte;
 mod dungeon;
 mod fov;
@@ -12,6 +11,7 @@ mod geometry;
 mod grid;
 mod item;
 mod log;
+mod memory;
 mod monster;
 mod player;
 mod spell;
