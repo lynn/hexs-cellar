@@ -20,6 +20,7 @@ use sprite::Sprite;
 use tile::{Tile, Stairs};
 use util::{coin_flip, random_range, random_range_two, sample};
 use world::World;
+use monster::Monster;
 
 
 // A dungeon level.
@@ -27,12 +28,19 @@ pub struct Level {
     pub tiles: Grid<Tile>,
     pub items: HashMap<Point, Item>,
     pub known_tiles: HashSet<Point>,
+    pub monsters: [Monster; 5]
 }
 
 impl Level {
+    pub fn monster_at(&self, position: Point) -> Option<&Monster> {
+        self.monsters.iter().filter(|m| m.position == position).nth(0)
+    }
+
     pub fn sprite_at(&self, position: Point, world: &World) -> Sprite {
         if position == world.player.position {
             Sprite::of_byte(world.player_appearance_byte, true)
+        } else if let Some(monster) = self.monster_at(position) {
+            monster.sprite()
         } else if let Some(item) = self.items.get(&position) {
             item.sprite()
         } else {
@@ -82,6 +90,22 @@ fn spawn_items(map: &Grid<Tile>) -> HashMap<Point, Item> {
     HashMap::from_iter(locations.iter().map(|p| (*p, Item::spawn())))
 }
 
+fn spawn_monsters(depth: u8, map: &Grid<Tile>) -> [Monster; 5] {
+    let mut monsters = [Monster::null(); 5];
+
+    // give the player some breathing room when going downstairs the first time
+    let upstairs = grid::RECTANGLE.into_iter().filter(|p|
+        map[*p] == Tile::Stairs(Stairs::Up)).nth(0).unwrap();
+    let floors = grid::RECTANGLE.into_iter().filter(|p|
+        map[*p] == Tile::Floor && p.cheby_dist(upstairs) > 1);
+
+    for (position, monster) in sample(floors, 5).into_iter().zip(&mut monsters) {
+        *monster = Monster::generate(depth, position)
+    }
+
+    monsters
+}
+
 
 // TODO: make early levels easy, handle special case for level 255
 pub fn build() -> Result<Dungeon, MapError> {
@@ -104,9 +128,10 @@ pub fn build() -> Result<Dungeon, MapError> {
 
     rand::thread_rng().shuffle(&mut maps[..]);
 
-    let dungeon = maps.into_iter().map(|map| {
+    let dungeon = (1..).zip(maps).map(|(depth, map)| {
         Level {
             items: spawn_items(&map),
+            monsters: spawn_monsters(depth as u8, &map),
             tiles: map,
             known_tiles: HashSet::new()
         }

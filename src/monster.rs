@@ -1,4 +1,7 @@
 use sprite::*;
+use std::mem;
+use util;
+use geometry::Point;
 
 #[derive(Copy, Clone)]
 pub enum Kind {
@@ -45,3 +48,53 @@ pub const INFOS: [Info; 16] = [
     Info {name: "elf",           sprite: Sprite {character: 'E', color: LIME},   habitat: ( 1,   0), max_hp: 40},
     Info {name: "golden dragon", sprite: Sprite {character: 'D', color: GOLD},   habitat: (20, 255), max_hp: 200},
 ];
+
+#[derive(Copy, Clone)]
+pub struct Monster {
+    pub kind: Kind,
+    pub charged:    bool, // dam*2
+    pub vulnerable: bool, // def=0
+    pub venomous:   bool, // poisons
+    pub corrupted:  bool, // dam*2, flips bits
+    pub position: Point,
+    pub hp: u8
+}
+
+impl Monster {
+    pub fn null() -> Monster {
+        Monster {
+            kind: Kind::Kestrel, // 0
+            charged:    false,
+            vulnerable: false,
+            venomous:   false,
+            corrupted:  false,
+            position: Point::of_byte(0),
+            hp: 0
+        }
+    }
+
+    pub fn generate(depth: u8, position: Point) -> Monster {
+        let infos = &INFOS;
+        let (kind, info) = util::pick((0..16u8).zip(infos)
+            .filter(|&(_, ref info)| habitable(info, depth)));
+
+        Monster {
+            kind: unsafe { mem::transmute(kind) },
+            charged:    false,
+            vulnerable: false,
+            venomous:   false,
+            corrupted:  false,
+            position: position,
+            hp: info.max_hp
+        }
+    }
+
+    pub fn sprite(&self) -> Sprite {
+        INFOS[self.kind as usize].sprite
+    }
+}
+
+fn habitable(info: &Info, depth: u8) -> bool {
+    let (low, high) = info.habitat;
+    low <= depth && depth <= high
+}
