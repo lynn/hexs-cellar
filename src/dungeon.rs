@@ -21,6 +21,7 @@ use tile::{Tile, Stairs};
 use util::{coin_flip, random_range, random_range_two, sample};
 use world::World;
 use monster::Monster;
+use fov::FOV_RADIUS;
 
 
 // A dungeon level.
@@ -98,10 +99,12 @@ fn spawn_monsters(depth: u8, map: &Grid<Tile>) -> [Monster; 5] {
     let mut monsters = [Monster::null(); 5];
 
     // give the player some breathing room when going downstairs the first time
+    // & extra breathing room on the first level
+    let safe_distance = if depth == 1 { FOV_RADIUS } else { 1 };
     let upstairs = grid::RECTANGLE.into_iter().filter(|p|
         map[*p] == Tile::Stairs(Stairs::Up)).nth(0).unwrap();
     let floors = grid::RECTANGLE.into_iter().filter(|p|
-        map[*p] == Tile::Floor && p.cheby_dist(upstairs) > 1);
+        map[*p] == Tile::Floor && p.cheby_dist(upstairs) > safe_distance);
 
     for (position, monster) in sample(floors, 5).into_iter().zip(&mut monsters) {
         *monster = Monster::generate(depth, position)

@@ -3,7 +3,7 @@ use geometry::*;
 use dungeon::Level;
 use grid;
 
-const FOV_RADIUS: i32 = 4;
+pub const FOV_RADIUS: i32 = 4;
 
 pub fn calculate(level: &Level, start: Point) -> HashSet<Point> {
     let mut fov: HashSet<Point> = HashSet::new();
