@@ -156,7 +156,13 @@ impl Iterator for RectangleIter {
             None
         }
     }
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let size = (self.end_index - self.current_index) as usize;
+        (size, Some(size))
+    }
 }
+
+impl ExactSizeIterator for RectangleIter {}
 
 impl IntoIterator for Rectangle {
     type Item = Point;
