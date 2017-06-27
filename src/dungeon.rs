@@ -33,7 +33,11 @@ pub struct Level {
 
 impl Level {
     pub fn monster_at(&self, position: Point) -> Option<&Monster> {
-        self.monsters.iter().filter(|m| m.position == position).nth(0)
+        self.monsters.iter().filter(|m| m.position == position && m.alive()).nth(0)
+    }
+
+    pub fn monster_at_mut(&mut self, position: Point) -> Option<&mut Monster> {
+        self.monsters.iter_mut().filter(|m| m.position == position && m.alive()).nth(0)
     }
 
     pub fn sprite_at(&self, position: Point, world: &World) -> Sprite {

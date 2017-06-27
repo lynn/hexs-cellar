@@ -92,6 +92,14 @@ impl Monster {
     pub fn sprite(&self) -> Sprite {
         INFOS[self.kind as usize].sprite
     }
+
+    pub fn name(&self) -> &'static str {
+        INFOS[self.kind as usize].name
+    }
+
+    pub fn alive(&self) -> bool {
+        self.hp > 0
+    }
 }
 
 fn habitable(info: &Info, depth: u8) -> bool {

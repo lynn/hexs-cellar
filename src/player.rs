@@ -123,7 +123,13 @@ impl Player {
         // don't let the player step out of bounds
         if !grid::RECTANGLE.contains(new_position) { return false }
 
-        // TODO: check for monsters
+        if let Some(monster) = level.monster_at_mut(new_position) {
+            // attack
+            log.tell(format!("You hit the {}.", monster.name()));
+            monster.hp = 0;
+            return true
+        }
+
         match level.tiles[new_position] {
             Tile::Wall => false,
             Tile::Floor | Tile::Doorway | Tile::Stairs(_) => {
