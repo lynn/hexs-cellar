@@ -1,7 +1,11 @@
 use sprite::*;
 use std::mem;
 use util;
-use geometry::Point;
+use geometry::*;
+use rand::{Rng, thread_rng};
+use grid;
+use dungeon::Level;
+use world::World;
 
 #[derive(Copy, Clone)]
 pub enum Kind {
@@ -105,4 +109,67 @@ impl Monster {
 fn habitable(info: &Info, depth: u8) -> bool {
     let (low, high) = info.habitat;
     low <= depth && depth <= high
+}
+
+
+pub fn take_turns(world: &mut World) {
+    let player = &world.player;
+    let mut level = player.current_level_mut(&mut world.dungeon);
+
+    // filter to get only living monsters;
+    // score monsters by distance to player so that further monsters won't get
+    // stuck behind closer monsters that haven't moved.
+    let mut turn_order: Vec<(usize, (i32, i32))> =
+        level.monsters.iter().enumerate().flat_map(|(i, m)|
+            if m.alive() {
+                Some( (i, (m.position.cheby_dist(player.position),
+                           m.position.taxi_dist(player.position))) )
+            } else {
+                None
+            }).collect();
+    turn_order.sort_by_key(|&(_, score)| score);
+
+    for (monster_index, _) in turn_order {
+        if level.monsters[monster_index].position.cheby_dist(world.player.position) == 1 {
+            // TODO: attack
+        } else if world.player.visible.contains(&level.monsters[monster_index].position) {
+            approach(level, monster_index, player.position);
+        }
+    }
+}
+
+
+fn approach(level: &mut Level, monster_index: usize, target: Point) -> bool {
+    let current = level.monsters[monster_index].position;
+    let current_cheby_dist = current.cheby_dist(target);
+    let current_taxi_dist  = current.taxi_dist(target);
+
+    // scoring function for points we could step to -- lower is better
+    let score = |p: Point|
+        (p.cheby_dist(target) - current_cheby_dist,
+         p.taxi_dist(target)  - current_taxi_dist);
+
+    // filter to get only the points that move us closer in some way
+    let mut choices: Vec<((i32, i32), Point)> =
+        Rectangle::point(current).grow(1).into_iter().flat_map(|p| {
+            let p_score = score(p);
+            if p_score < (0, 0) {Some((p_score, p))} else {None}
+        }).collect();
+    // we use a stable sort, so shuffling will randomize the order of points
+    // with the same score.
+    thread_rng().shuffle(&mut choices[..]);
+    // try points with better scores first
+    choices.sort_by_key(|&(score, _)| score);
+
+    for (_, point) in choices {
+        if grid::RECTANGLE.contains(point)
+            && level.tiles[point].is_open()
+            && level.monster_at(point).is_none()
+        {
+            level.monsters[monster_index].position = point;
+            return true
+        }
+    }
+
+    false
 }

@@ -38,5 +38,5 @@ pub fn calculate(level: &Level, start: Point) -> HashSet<Point> {
 fn los_comes_from(level: &Level, fov: &HashSet<Point>, point: Point) -> bool {
     fov.contains(&point)
         && grid::RECTANGLE.contains(point)
-        && level.tiles[point].permits_sight()
+        && level.tiles[point].is_open()
 }

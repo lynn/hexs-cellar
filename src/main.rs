@@ -67,6 +67,7 @@ fn main() {
         };
 
         if took_turn {
+            monster::take_turns(&mut world);
             world.log.end_turn()
         }
     };

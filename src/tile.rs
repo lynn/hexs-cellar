@@ -34,7 +34,7 @@ impl Tile {
         }
     }
 
-    pub fn permits_sight(self) -> bool {
+    pub fn is_open(self) -> bool {
         match self {
             Tile::Floor | Tile::Doorway | Tile::Stairs(_) => true,
             Tile::Wall | Tile::Door | Tile::Switch(_) => false
