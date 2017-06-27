@@ -1,4 +1,4 @@
-use dungeon::{self, Dungeon};
+use dungeon::{self, Dungeon, Level};
 use item;
 use player::Player;
 use std;
@@ -39,5 +39,13 @@ impl World {
 
             log: log
         }
+    }
+
+    pub fn current_level(&self) -> &Level {
+        self.player.current_level(&self.dungeon)
+    }
+
+    pub fn current_level_mut(&mut self) -> &mut Level {
+        self.player.current_level_mut(&mut self.dungeon)
     }
 }

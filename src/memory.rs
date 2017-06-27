@@ -12,10 +12,12 @@ pub const PLAYER_APPEARANCE: u8 = 0x00;
 pub const PLAYER_NAME: u8 = 0x01;
 
 // Monster data is a (struct {u8, u8, u8})[5].
-// So add (n * 3) to these, where 0 <= n <= 4, to get the address for the n-th monster.
-pub const MONSTER_FLAGS: u8 = 0x10;
-pub const MONSTER_POSITION: u8 = 0x11;
-pub const MONSTER_HP: u8 = 0x12;
+// So add (n * 3) to this, where 0 <= n <= 4, to get the address for the n-th monster,
+// then add the offset of which byte you want.
+pub const MONSTERS: u8 = 0x10;
+pub const MONSTER_FLAGS: u8 = 0;
+pub const MONSTER_POSITION: u8 = 1;
+pub const MONSTER_HP: u8 = 2;
 
 // An 8-bit bitmask (there are eight spells).
 pub const SPELL_MEMORY: u8 = 0x1f;
@@ -67,9 +69,20 @@ pub fn peek(world: &World, address: u8) -> u8 {
         _ if address >= PLAYER_NAME && address < MONSTER_FLAGS =>
             world.player.name[(address - PLAYER_NAME) as usize],
 
-        _ if address >= MONSTER_FLAGS && address < SPELL_MEMORY =>
-            // TODO: implement monsters
-            0,
+        _ if address >= MONSTERS && address < SPELL_MEMORY => {
+            let monster = &world.current_level()
+                .monsters[(address - MONSTERS) as usize / 3];
+            match (address - MONSTERS) % 3 {
+                MONSTER_FLAGS => ((monster.kind as u8) << 4)
+                    | ((monster.charged as u8) << 3)
+                    | ((monster.vulnerable as u8) << 2)
+                    | ((monster.venomous as u8) << 1)
+                    | monster.corrupted as u8,
+                MONSTER_POSITION => monster.position.as_byte(),
+                MONSTER_HP => monster.hp,
+                _ => unreachable!()
+            }
+        },
 
         _ if address >= SPELL_MEMORY && address < IDENTIFICATION =>
             world.player.spell_memory.iter().enumerate()
@@ -157,9 +170,22 @@ pub fn poke(world: &mut World, address: u8, value: u8) {
         _ if address >= PLAYER_NAME && address < MONSTER_FLAGS =>
             world.player.name[(address - PLAYER_NAME) as usize] = value,
 
-        _ if address >= MONSTER_FLAGS && address < SPELL_MEMORY =>
-            // TODO: implement monsters
-            {},
+        _ if address >= MONSTERS && address < SPELL_MEMORY => {
+            let monster = &mut world.current_level_mut()
+                .monsters[(address - MONSTERS) as usize / 3];
+            match (address - MONSTERS) % 3 {
+                MONSTER_FLAGS => {
+                    monster.kind = unsafe { transmute(value >> 4) };
+                    monster.charged    = value & 0b1000 != 0;
+                    monster.vulnerable = value & 0b0100 != 0;
+                    monster.venomous   = value & 0b0010 != 0;
+                    monster.corrupted  = value & 0b0001 != 0;
+                },
+                MONSTER_POSITION => monster.position = Point::of_byte(value),
+                MONSTER_HP => monster.hp = value,
+                _ => unreachable!()
+            }
+        },
 
         _ if address >= SPELL_MEMORY && address < IDENTIFICATION =>
             for (index, known) in world.player.spell_memory.iter_mut().enumerate() {
