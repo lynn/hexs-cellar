@@ -38,8 +38,8 @@ fn main() {
         let took_turn = match get_key(&terminal, &world) {
             'q' => break,
             ' ' => { world.player.show_ram = !world.player.show_ram; false },
-            '<' => { world.player.try_stairs(&mut world.log, &mut world.dungeon, Stairs::Up); false },
-            '>' => { world.player.try_stairs(&mut world.log, &mut world.dungeon, Stairs::Down); false },
+            '<' => { world.player.try_stairs(&mut world.log, &mut world.dungeon, Stairs::Up); true },
+            '>' => { world.player.try_stairs(&mut world.log, &mut world.dungeon, Stairs::Down); true },
             ',' | 'g' => world.player.pick_up_item(&mut world.log, &mut world.dungeon),
             'd' => match item_prompt(&terminal, &mut world, "Drop") {
                 Some(index) => world.player.drop_item(&mut world.log, &mut world.dungeon, index),

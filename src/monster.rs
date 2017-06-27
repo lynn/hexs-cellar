@@ -61,7 +61,9 @@ pub struct Monster {
     pub venomous:   bool, // poisons
     pub corrupted:  bool, // dam*2, flips bits
     pub position: Point,
-    pub hp: u8
+    pub hp: u8,
+
+    alert: bool
 }
 
 impl Monster {
@@ -73,7 +75,9 @@ impl Monster {
             venomous:   false,
             corrupted:  false,
             position: Point::of_byte(0),
-            hp: 0
+            hp: 0,
+
+            alert: false
         }
     }
 
@@ -89,7 +93,9 @@ impl Monster {
             venomous:   false,
             corrupted:  false,
             position: position,
-            hp: info.max_hp
+            hp: info.max_hp,
+
+            alert: false
         }
     }
 
@@ -130,10 +136,23 @@ pub fn take_turns(world: &mut World) {
     turn_order.sort_by_key(|&(_, score)| score);
 
     for (monster_index, _) in turn_order {
-        if level.monsters[monster_index].position.cheby_dist(world.player.position) == 1 {
-            // TODO: attack
-        } else if world.player.visible.contains(&level.monsters[monster_index].position) {
-            approach(level, monster_index, player.position);
+        if level.monsters[monster_index].alert {
+
+            if level.monsters[monster_index].position.cheby_dist(player.position) == 1 {
+                // TODO: attack
+            } else if player.visible.contains(&level.monsters[monster_index].position) {
+                approach(level, monster_index, player.position);
+            }
+
+        } else {
+
+            let mut monster = &mut level.monsters[monster_index];
+
+            if player.visible.contains(&monster.position) {
+                world.log.tell(format!("The {} notices you.", monster.name()));
+                monster.alert = true;
+            }
+
         }
     }
 }
