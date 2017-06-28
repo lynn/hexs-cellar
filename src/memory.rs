@@ -1,6 +1,8 @@
 use std::mem::transmute;
 use world::World;
 use geometry::Point;
+use sprite::Sprite;
+use util;
 
 // In Hex's Cellar, the player's spells manipulate an u8[40] of bytes that
 // affect the world around her. This file gives a "RAM map" for that array.
@@ -164,8 +166,12 @@ pub fn peek(world: &World, address: u8) -> u8 {
 
 pub fn poke(world: &mut World, address: u8, value: u8) {
     match address {
-        PLAYER_APPEARANCE =>
-            world.player_appearance_byte = value,
+        PLAYER_APPEARANCE => {
+            let old_sprite = Sprite::of_byte(world.player_appearance_byte, true);
+            let new_sprite = Sprite::of_byte(value, true);
+            report_player_appearance_change(world, old_sprite, new_sprite);
+            world.player_appearance_byte = value;
+        },
 
         _ if address >= PLAYER_NAME && address < MONSTERS =>
             world.player.name[(address - PLAYER_NAME) as usize] = value,
@@ -270,4 +276,17 @@ pub fn poke(world: &mut World, address: u8, value: u8) {
 // pretend the low four bits of our u8 argument are an "i4" and sign-extend to i8
 fn upcast_i4(the_i4: u8) -> i8 {
     (unsafe { transmute::<u8, i8>(the_i4) } << 4) >> 4
+}
+
+
+fn report_player_appearance_change(world: &mut World, old: Sprite, new: Sprite) {
+    let new_color_name = util::color_name(new.color[0]);
+    let new_char_name = util::punctuation_name(new.character);
+    if old.character != new.character && old.color != new.color {
+        world.log.tell(format!("You turn into {} {}!", util::a_or_an(new_color_name), new_char_name));
+    } else if old.character != new.character {
+        world.log.tell(format!("You turn into {}!", util::a_or_an(new_char_name)));
+    } else if old.color != new.color {
+        world.log.tell(format!("You turn {}!", new_color_name));
+    }
 }

@@ -1,5 +1,6 @@
 use rand::{self, Rng, thread_rng};
 use rand::distributions::range::SampleRange;
+use sprite::Color;
 use std::ops::Range;
 
 // Flip a coin using the thread RNG.
@@ -45,6 +46,26 @@ pub fn random_range_two<T: PartialOrd + SampleRange>(r: Range<T>) -> (T, T)
     let b = s.remove(1);
     let a = s.remove(0);
     (a, b)
+}
+
+pub fn color_name(color: Color) -> &'static str {
+    match color {
+        Color::Navy => "navy",
+        Color::Green => "green",
+        Color::Teal => "teal",
+        Color::Maroon => "maroon",
+        Color::Purple => "purple",
+        Color::Brown => "brown",
+        Color::Gray => "gray",
+        Color::Dark => "dark gray",
+        Color::Blue => "blue",
+        Color::Lime => "lime",
+        Color::Aqua => "cyan",
+        Color::Red => "red",
+        Color::Pink => "pink",
+        Color::Yellow => "yellow",
+        Color::White => "white",
+    }
 }
 
 pub fn punctuation_name(c: char) -> &'static str {

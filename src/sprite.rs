@@ -1,4 +1,4 @@
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Eq, PartialEq)]
 pub enum Color {
     Navy, Green, Teal, Maroon,
     Purple, Brown, Gray, Dark,
