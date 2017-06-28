@@ -5,7 +5,7 @@ use memory;
 use sprite;
 use sprite::{Sprite, Color};
 use geometry::*;
-use util::pick;
+use util::{self, pick};
 use world::World;
 use log::Log;
 use item::Inventory;
@@ -174,6 +174,8 @@ fn draw_ram(term: &Window, world: &World) {
         term.mvaddstr(i as i32 / 8 + 4, i as i32 % 8 * 3 + 3, &*hex);
     }
 
+    term.mvaddstr(13, 3, util::address_name(world.player.selected));
+
     let name = memory::player_name(world);
-    term.mvaddstr(13, 3, &*name);
+    term.mvaddstr(14, 3, &*name);
 }
