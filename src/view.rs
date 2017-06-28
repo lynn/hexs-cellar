@@ -173,4 +173,7 @@ fn draw_ram(term: &Window, world: &World) {
         let hex = format!("{:02x}", memory::peek(world, i));
         term.mvaddstr(i as i32 / 8 + 4, i as i32 % 8 * 3 + 3, &*hex);
     }
+
+    let name = memory::player_name(world);
+    term.mvaddstr(13, 3, &*name);
 }
