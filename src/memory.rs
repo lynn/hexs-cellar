@@ -66,7 +66,7 @@ pub fn peek(world: &World, address: u8) -> u8 {
         PLAYER_APPEARANCE =>
             world.player_appearance_byte,
 
-        _ if address >= PLAYER_NAME && address < MONSTER_FLAGS =>
+        _ if address >= PLAYER_NAME && address < MONSTERS =>
             world.player.name[(address - PLAYER_NAME) as usize],
 
         _ if address >= MONSTERS && address < SPELL_MEMORY => {
@@ -157,7 +157,7 @@ pub fn peek(world: &World, address: u8) -> u8 {
                     | (world.player.aptitude[3] & 0x0f))
             },
 
-        _ => panic!("memory::peek - invalid address")
+        _ => panic!("memory::peek - invalid address {}", address)
     }
 }
 
@@ -167,7 +167,7 @@ pub fn poke(world: &mut World, address: u8, value: u8) {
         PLAYER_APPEARANCE =>
             world.player_appearance_byte = value,
 
-        _ if address >= PLAYER_NAME && address < MONSTER_FLAGS =>
+        _ if address >= PLAYER_NAME && address < MONSTERS =>
             world.player.name[(address - PLAYER_NAME) as usize] = value,
 
         _ if address >= MONSTERS && address < SPELL_MEMORY => {

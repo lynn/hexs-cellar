@@ -1,6 +1,7 @@
 use grid;
 use pancurses;
 use pancurses::{Window, Attribute, Attributes, ColorPair, ToChtype};
+use memory;
 use sprite;
 use sprite::{Sprite, Color};
 use geometry::*;
@@ -59,10 +60,13 @@ pub fn initialize() -> Window {
 pub fn draw(term: &Window, world: &World) {
     term.erase(); // clear back-buffer
 
-    draw_inventory(term, &world.player.inventory);
+    if world.player.show_ram {
+        draw_ram(term, &world);
+    } else {
+        draw_status(term, &world);
+    }
 
     draw_board(term, &world);
-
     draw_messages(term, &world.log);
 
     term.refresh();
@@ -117,6 +121,10 @@ fn draw_messages(term: &Window, log: &Log) {
     }
 }
 
+fn draw_status(term: &Window, world: &World) {
+    draw_inventory(term, &world.player.inventory);
+}
+
 fn draw_inventory(term: &Window, inventory: &Inventory) {
     // TODO: depend on terminal size; don't hardcode lengths/alignments
     // TODO: abbreviate long inventory slot descriptions
@@ -156,5 +164,13 @@ fn draw_inventory(term: &Window, inventory: &Inventory) {
         if slot.is_equipped() {
             term.addstr("(equipped)");
         }
+    }
+}
+
+fn draw_ram(term: &Window, world: &World) {
+    for i in 0x00..0x40 {
+        term.attrset(color(if i == world.player.selected { Color::Red } else { Color::Gray }));
+        let hex = format!("{:02x}", memory::peek(world, i));
+        term.mvaddstr(i as i32 / 8 + 4, i as i32 % 8 * 3 + 3, &*hex);
     }
 }

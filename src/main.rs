@@ -37,6 +37,7 @@ fn main() {
 
         let took_turn = match get_key(&terminal, &world) {
             'q' => break,
+            ' ' => { world.player.show_ram = !world.player.show_ram; false },
             '<' => { world.player.try_stairs(&mut world.log, &mut world.dungeon, Stairs::Up); false },
             '>' => { world.player.try_stairs(&mut world.log, &mut world.dungeon, Stairs::Down); false },
             ',' | 'g' => world.player.pick_up_item(&mut world.log, &mut world.dungeon),
@@ -44,6 +45,17 @@ fn main() {
                 Some(index) => world.player.drop_item(&mut world.log, &mut world.dungeon, index),
                 None => false
             },
+            // debug commands
+            '[' => { world.player.selected = (world.player.selected + 0x3F) % 0x40; false },
+            ']' => { world.player.selected = (world.player.selected + 0x01) % 0x40; false },
+            '#' => {
+                if let Some(b) = byte_prompt(&terminal, &mut world) {
+                    let a = world.player.selected;
+                    memory::poke(&mut world, a, b);
+                }
+                false
+            },
+
             key => {
                 // try movement commands
                 if let Some(step_direction) = key_to_direction(key) {
@@ -117,6 +129,27 @@ fn item_prompt_rec(terminal: &Window, world: &mut World,
                 } else {
                     prompt + " (a digit 1-8)"
                 }, true)
+        }
+    })
+}
+
+fn byte_prompt(terminal: &Window, world: &mut World) -> Option<u8> {
+    nibble_prompt(terminal, world, String::from("High nibble:")).and_then(|h| {
+        nibble_prompt(terminal, world, String::from("Low nibble: ")).and_then(|l| {
+            Some(h << 4 | l)
+        })
+    })
+}
+
+fn nibble_prompt(terminal: &Window, world: &mut World, prompt: String) -> Option<u8>
+{
+    char_prompt(terminal, world, &prompt).and_then(|key| {
+        match key {
+            '0' => Some(0x0), '1' => Some(0x1), '2' => Some(0x2), '3' => Some(0x3),
+            '4' => Some(0x4), '5' => Some(0x5), '6' => Some(0x6), '7' => Some(0x7),
+            '8' => Some(0x8), '9' => Some(0x9), 'a' => Some(0xa), 'b' => Some(0xb),
+            'c' => Some(0xc), 'd' => Some(0xd), 'e' => Some(0xe), 'f' => Some(0xf),
+            _ => nibble_prompt(terminal, world, prompt),
         }
     })
 }
