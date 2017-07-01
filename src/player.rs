@@ -259,4 +259,32 @@ impl Player {
         log.tell("No room on floor!");
         false
     }
+
+    // try to use an item in inventory; returns if a turn was consumed
+    pub fn use_item(&mut self, log: &mut Log,
+        dungeon: &mut Dungeon, index: BitNumber) -> bool
+    {
+        let slot = self.inventory.slots[index as usize];
+        let item = match slot.get_item() {
+            Some(item) => item,
+            None => {
+                log.tell("You don't have that item!");
+                return false
+            }
+        };
+
+        if item.is_consumable() {
+            log.tell("[Item consumed. Do something here.]");
+            self.inventory.slots[index as usize] = InventorySlot::empty();
+            return true
+        }
+
+        if let Some(body_part) = item.equipment_slot() {
+            log.tell(format!("[Item is {:?} equipment. Try to equip/unequip.]", body_part));
+            return false
+        }
+
+        log.tell("[Not a consumable or equipment. Do something here.]");
+        false
+    }
 }

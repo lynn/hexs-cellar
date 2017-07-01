@@ -241,6 +241,11 @@ pub fn random_appearance_map() -> AppearanceMap {
     ]
 }
 
+#[derive(Debug, Copy, Clone)]
+pub enum EquipmentSlot {
+    Weapon, Body, Neck
+}
+
 #[derive(Clone, Copy)]
 pub struct Item {
     // 5 high bits
@@ -267,6 +272,29 @@ impl Item {
 
     pub fn name(&self) -> &'static str {
         self.appearance.name()
+    }
+
+    pub fn is_consumable(&self) -> bool {
+        use self::Appearance::*;
+        match self.appearance {
+            Lumimelon | Glowfruit | Shineapple |
+            RoundPill | TinyPill | DiamondPill | OblongPill |
+            SoftPill | HexagonalPill | WidePill | TranslucentPill => true,
+            _ => false
+        }
+    }
+
+    // Some(slot) if this item is equipment; None if it isn't.
+    pub fn equipment_slot(&self) -> Option<EquipmentSlot> {
+        use self::Appearance::*;
+        use self::EquipmentSlot::*;
+        match self.appearance {
+            Crowbar | VolcanicShard | Taser | JellyGun => Some(Weapon),
+            ThickSweater | BallisticVest | DragonScaleMail => Some(Body),
+            TitaniumNecklace | RustyNecklace | CrimsonNecklace |
+            GlowingNecklace | UnholyNecklace | GoldenPendant => Some(Neck),
+            _ => None
+        }
     }
 }
 
