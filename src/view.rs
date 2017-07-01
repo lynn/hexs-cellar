@@ -41,6 +41,7 @@ pub fn initialize() -> Window {
     pancurses::cbreak();
     pancurses::noecho();
     pancurses::curs_set(0);
+    terminal.keypad(true);
 
     pancurses::start_color();
     pancurses::init_pair(0, pancurses::COLOR_WHITE,   pancurses::COLOR_BLACK);

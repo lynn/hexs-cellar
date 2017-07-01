@@ -45,9 +45,9 @@ fn main() {
                 Some(index) => world.player.drop_item(&mut world.log, &mut world.dungeon, index),
                 None => false
             },
-            c if c >= '1' && c <= '8' => {
-                let index = BitNumber::from_number(c as i32 - '1' as i32);
-                world.player.use_item(&mut world.log, &mut world.dungeon, index)
+            'a' => match item_prompt(&terminal, &mut world, "Use") {
+                Some(index) => world.player.use_item(&mut world.log, &mut world.dungeon, index),
+                None => false
             },
             // debug commands
             '[' => { world.player.selected = (world.player.selected + 0x3F) % 0x40; false },
