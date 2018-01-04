@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 extern crate rand;
+extern crate regex;
 extern crate pancurses;
 
 use pancurses::{Window, Input};
@@ -14,6 +15,7 @@ mod log;
 mod memory;
 mod monster;
 mod player;
+mod speech;
 mod spell;
 mod sprite;
 mod tile;

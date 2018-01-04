@@ -6,6 +6,7 @@ use rand::{Rng, thread_rng};
 use grid;
 use dungeon::Level;
 use world::World;
+use speech;
 
 #[derive(Copy, Clone)]
 pub enum Kind {
@@ -149,7 +150,8 @@ pub fn take_turns(world: &mut World) {
             let mut monster = &mut level.monsters[monster_index];
 
             if player.visible.contains(&monster.position) {
-                world.log.tell(format!("The {} notices you.", monster.name()));
+                // TODO: alert stuff nearby? Maybe some monsters are loud, and some aren't -- the shout_lines should make it obvious.
+                world.log.tell(speech::shout_line(monster.kind));
                 monster.alert = true;
             }
 

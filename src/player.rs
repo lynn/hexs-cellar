@@ -9,6 +9,7 @@ use fov;
 use log::Log;
 use util::a_or_an;
 use item::{Inventory, InventorySlot};
+use speech;
 
 pub struct Player {
     pub position: Point,
@@ -69,7 +70,7 @@ impl Player {
             show_ram: false,
             visible: HashSet::new()
         };
-        log.tell("Put some cute introductory flavor here!");
+        log.tell(speech::intro_line());
         player.enter_level(log, dungeon, 1, Stairs::Up);
         player
     }
